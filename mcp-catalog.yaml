@@ -13,12 +13,31 @@
 #   3. Commit mcp-catalog.yaml, .vscode/mcp.json, and .mcp-dockerfiles/<name>/Dockerfile.
 #
 # Format of each entry:
-#   - key: <server-key>                    # key used in .vscode/mcp.json
-#     url: <github-url>                    # full GitHub URL (may point to a subdir)
-#     patched_dockerfile: <relative-path>  # path to the patched Dockerfile in .mcp-dockerfiles/
-#                                          # (relative to repo root; set by fix-docker-perms skill)
+#
+#   Stdio servers (default):
+#   - key: <server-key>
+#     url: <github-url>
+#     patched_dockerfile: .mcp-dockerfiles/<name>/Dockerfile
 #     description: <short text>
-#     notes: <optional notes about env vars, mounts, etc.>
+#     notes: <optional>
+#
+#   HTTP/SSE servers (long-lived Docker daemon containers):
+#   - key: <server-key>
+#     url: <github-url>
+#     patched_dockerfile: .mcp-dockerfiles/<name>/Dockerfile
+#     transport: http
+#     sse_path: /sse                        # SSE endpoint path (default: /sse)
+#     docker:                               # Docker Compose-style service config
+#       ports:
+#         - "8000:8000"                     # host:container — first port = MCP endpoint
+#         - "5900:5900"                     # additional ports (e.g. VNC)
+#       environment:
+#         - OPENAI_API_KEY                  # bare name → inherit from host env / .env
+#         - DEBUG=false                     # KEY=value → literal
+#       volumes:
+#         - "<HOST_HOME>/.mydata:/data"     # optional bind mounts
+#     description: <short text>
+#     notes: <optional>
 
 servers:
   - key: git
@@ -38,3 +57,13 @@ servers:
     url: https://github.com/modelcontextprotocol/servers/tree/main/src/memory
     patched_dockerfile: .mcp-dockerfiles/servers-memory/Dockerfile
     description: A basic implementation of persistent memory using a local knowledge graph. This lets an agent remember information about the user across chats.
+
+  - key: browser
+    url: https://github.com/microsoft/playwright-mcp
+    patched_dockerfile: .mcp-dockerfiles/playwright-mcp/Dockerfile
+    description: Microsoft's official Playwright MCP server — browser automation via structured accessibility snapshots (no screenshots needed). Provides tools for navigation, clicking, typing, form submission, and web scraping.
+    notes: >
+      stdio transport. Runs headless Chromium via Playwright inside the container.
+      No API key required. Pass --user to run as host uid/gid so any downloaded
+      files are owned correctly. Use --network host or -p flags if the agent
+      needs to reach local services.

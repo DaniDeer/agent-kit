@@ -60,6 +60,7 @@ generate_config() {
     -e "s|<HOST_GID>|$(id -g)|g" \
     -e "s|<HOST_USER>|$(id -un)|g" \
     -e "s|<HOST_HOME>|$HOME|g" \
+    -e "s|<WORKSPACE>|$ROOT_DIR|g" \
     -e '/^\s*\/\//d' \
     "$example" > "$output"
   log "Generated  : $output  (from $(basename "$example"))"

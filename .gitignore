@@ -24,3 +24,9 @@ mcp-servers/*/
 !.vscode/mcp.example.json
 !.vscode/settings.json
 !.cline/mcp.example.json
+
+# Local secrets file (auto-sourced by start-http-mcp-servers.sh)
+.env
+
+
+

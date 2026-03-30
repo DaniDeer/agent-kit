@@ -42,12 +42,16 @@ bash generate-mcp-configs.sh --root /path/to/repo   # if not called from repo ro
 2. Strips `//` comments (JSONC → JSON)
 3. Substitutes placeholders:
 
-   | Placeholder   | Replaced with | Example       |
-   | ------------- | ------------- | ------------- |
-   | `<HOST_UID>`  | `$(id -u)`    | `1000`        |
-   | `<HOST_GID>`  | `$(id -g)`    | `1000`        |
-   | `<HOST_USER>` | `$(id -un)`   | `alice`       |
-   | `<HOST_HOME>` | `$HOME`       | `/home/alice` |
+   | Placeholder   | Replaced with | Example                 |
+   | ------------- | ------------- | ----------------------- |
+   | `<HOST_UID>`  | `$(id -u)`    | `1000`                  |
+   | `<HOST_GID>`  | `$(id -g)`    | `1000`                  |
+   | `<HOST_USER>` | `$(id -un)`   | `alice`                 |
+   | `<HOST_HOME>` | `$HOME`       | `/home/alice`           |
+   | `<WORKSPACE>` | repo root dir | `/home/alice/prj/agent` |
+
+   `<WORKSPACE>` is useful for referencing scripts that live in the repo and need
+   to be called with an absolute path from mcp.json (e.g. `.mcp-scripts/start-browser-use.sh`).
 
 4. Writes `.vscode/mcp.json` and `.cline/mcp.json` (both git-ignored)
 

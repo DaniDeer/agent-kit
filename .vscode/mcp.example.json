@@ -12,6 +12,7 @@
 	//   <HOST_UID>    →  $(id -u)            e.g. 1000
 	//   <HOST_GID>    →  $(id -g)            e.g. 1000
 	//   <HOST_HOME>   →  $HOME               e.g. /home/alice
+	//   <WORKSPACE>   →  repo root dir       e.g. /home/alice/prj/agent
 	//
 	// To regenerate .vscode/mcp.json manually:
 	//   bash .github/skills/setup-mcp-server/scripts/bootstrap.sh --dry-run
@@ -106,6 +107,26 @@
 				"type=bind,src=<HOST_HOME>/.mcp-memory,dst=/memory",
 				"mcp-servers-memory:latest"
 			]
+		},
+
+		// Playwright MCP server — browser automation via accessibility snapshots.
+		// stdio transport, runs headless Chromium inside the container.
+		// No API key required. Use --network host if the agent needs to reach local services.
+		// Source: https://github.com/microsoft/playwright-mcp
+		"browser": {
+			"type": "stdio",
+			"command": "docker",
+			"args": [
+				"run",
+				"--rm",
+				"-i",
+				"--user",
+				"<HOST_UID>:<HOST_GID>",
+				"-e",
+				"HOME=<HOST_HOME>",
+				"mcp-playwright-mcp:latest"
+			],
+			"env": {}
 		}
 	}
 }

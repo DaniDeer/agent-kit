@@ -61,10 +61,41 @@ cross() { echo "✗"; }
 dash()  { echo "-"; }
 
 # ── Parse catalog ─────────────────────────────────────────────────────────────
-mapfile -t URLS < <(grep -E '^\s*url:' "$CATALOG" | sed 's/.*url:[[:space:]]*//' | tr -d '\r')
-mapfile -t PATCHED_DOCKERFILES < <(grep -E '^\s*patched_dockerfile:' "$CATALOG" | sed 's/.*patched_dockerfile:[[:space:]]*//' | tr -d '\r')
+# Parse all entries as tab-separated records: url  patched_dockerfile  transport  http_port  key
+# http_port is derived from docker.ports[0] (first host-side port), e.g. "8000:8000" → "8000"
+read_catalog_entries() {
+  awk '
+    /^  - key:/ {
+      if (url != "") {
+        printf "%s\t%s\t%s\t%s\t%s\n", url, patched_df, transport, http_port, key
+      }
+      key = $NF; url = ""; patched_df = ""; transport = "stdio"; http_port = ""
+      in_docker = 0; in_ports = 0; first_port_done = 0
+    }
+    /^    url:/                { url = $NF }
+    /^    patched_dockerfile:/ { patched_df = $NF }
+    /^    transport:/          { transport = $NF }
+    /^    docker:/             { in_docker = 1 }
+    # Exit docker block on any entry-level field that is not "docker:"
+    /^    [a-z]/ && !/^    docker:/ { if (in_docker) { in_docker = 0; in_ports = 0 } }
+    in_docker && /^      ports:/   { in_ports = 1; next }
+    in_docker && /^      [a-z]/ && !/^      ports:/ { in_ports = 0 }
+    # First port list item: "8000:8000" → host port = "8000"
+    in_docker && in_ports && !first_port_done && /^        - / {
+      val = $0; gsub(/^        - /, "", val); gsub(/"/, "", val)
+      http_port = val; sub(/:.*/, "", http_port)   # "8000:8000" → "8000"
+      first_port_done = 1
+    }
+    END {
+      if (url != "") {
+        printf "%s\t%s\t%s\t%s\t%s\n", url, patched_df, transport, http_port, key
+      }
+    }
+  ' "$CATALOG"
+}
 
-[[ ${#URLS[@]} -gt 0 ]] || die "No servers found in $CATALOG"
+mapfile -t ENTRIES < <(read_catalog_entries)
+[[ ${#ENTRIES[@]} -gt 0 ]] || die "No servers found in $CATALOG"
 
 # ── Column widths ─────────────────────────────────────────────────────────────
 COL_SERVER=24
@@ -75,17 +106,16 @@ echo ""
 echo "════════════════════════════════════════════════════════════════"
 echo "  MCP SERVER STATUS"
 echo "════════════════════════════════════════════════════════════════"
-printf "  %-${COL_SERVER}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %s\n" \
-  "SERVER" "CLONE" "PATCH" "IMAGE" "SHA OK" "STATUS"
-printf "  %-${COL_SERVER}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %s\n" \
-  "────────────────────────" "───────" "───────" "───────" "───────" "──────────"
+printf "  %-${COL_SERVER}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %s\n" \
+  "SERVER" "CLONE" "PATCH" "IMAGE" "SHA OK" "RUNNING" "STATUS"
+printf "  %-${COL_SERVER}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %s\n" \
+  "────────────────────────" "───────" "───────" "───────" "───────" "───────" "──────────"
 
 # ── Check each server ─────────────────────────────────────────────────────────
 PROBLEMS=0
 
-for i in "${!URLS[@]}"; do
-  URL="${URLS[$i]}"
-  PATCHED_DF="${PATCHED_DOCKERFILES[$i]:-}"
+for entry in "${ENTRIES[@]}"; do
+  IFS=$'\t' read -r URL PATCHED_DF TRANSPORT HTTP_PORT KEY <<< "$entry"
 
   REPO_NAME="$(url_to_repo_name "$URL")"
   IMAGE_BASE="mcp-$REPO_NAME"
@@ -129,10 +159,26 @@ for i in "${!URLS[@]}"; do
     fi
   fi
 
+  # RUNNING: only meaningful for HTTP-transport servers
+  if [[ "$TRANSPORT" == "http" ]]; then
+    CONTAINER_NAME="mcp-${KEY}"
+    if docker inspect --format '{{.State.Running}}' "$CONTAINER_NAME" 2>/dev/null | grep -q '^true$'; then
+      RUNNING_OK="$(tick)"
+    else
+      RUNNING_OK="$(cross)"
+    fi
+  else
+    RUNNING_OK="$(dash)"   # stdio servers are ephemeral — not applicable
+  fi
+
   # Overall status
   if [[ "$CLONE_OK" == "$(tick)" && "$PATCH_OK" == "$(tick)" && \
         "$IMAGE_OK" == "$(tick)" && "$SHA_OK" == "$(tick)" ]]; then
     STATUS="✅ ready"
+    # Warn if HTTP server is not currently running
+    if [[ "$TRANSPORT" == "http" && "$RUNNING_OK" == "$(cross)" ]]; then
+      STATUS="✅ ready (not running)"
+    fi
   elif [[ "$IMAGE_OK" == "$(cross)" && "$CLONE_OK" == "$(cross)" ]]; then
     STATUS="❌ not installed"
     (( PROBLEMS++ )) || true
@@ -141,8 +187,8 @@ for i in "${!URLS[@]}"; do
     (( PROBLEMS++ )) || true
   fi
 
-  printf "  %-${COL_SERVER}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %s\n" \
-    "$REPO_NAME" "$CLONE_OK" "$PATCH_OK" "$IMAGE_OK" "$SHA_OK" "$STATUS"
+  printf "  %-${COL_SERVER}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %-${COL_CHECK}s  %s\n" \
+    "$REPO_NAME" "$CLONE_OK" "$PATCH_OK" "$IMAGE_OK" "$SHA_OK" "$RUNNING_OK" "$STATUS"
 done
 
 echo "════════════════════════════════════════════════════════════════"
@@ -152,5 +198,5 @@ if [[ $PROBLEMS -gt 0 ]]; then
   log "$PROBLEMS server(s) need attention — run bootstrap.sh to fix."
   exit 1
 else
-  log "All ${#URLS[@]} server(s) are ready."
+  log "All ${#ENTRIES[@]} server(s) are ready."
 fi
