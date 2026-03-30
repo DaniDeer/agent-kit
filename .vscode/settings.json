@@ -1,0 +1,10 @@
+{
+	// Workspace settings for the agent framework.
+
+	// Treat *.example.json as JSONC (JSON with Comments) so that the template
+	// files like .vscode/mcp.example.json and .cline/mcp.example.json can
+	// contain // comments without triggering JSON validation errors.
+	"files.associations": {
+		"*.example.json": "jsonc"
+	}
+}

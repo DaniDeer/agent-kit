@@ -1,0 +1,77 @@
+{
+	// MCP servers for the agent framework.
+	// Each server runs in a Docker container on the host (stdio transport).
+	//
+	// ── HOW THIS FILE WORKS ────────────────────────────────────────────────────
+	// This is a TEMPLATE file (.vscode/mcp.example.json).
+	// The real .vscode/mcp.json is git-ignored and generated from this template
+	// by bootstrap.sh, which substitutes the placeholders below with actual host
+	// values:
+	//
+	//   <HOST_USER>   →  $(id -un)           e.g. alice
+	//   <HOST_UID>    →  $(id -u)            e.g. 1000
+	//   <HOST_GID>    →  $(id -g)            e.g. 1000
+	//   <HOST_HOME>   →  $HOME               e.g. /home/alice
+	//
+	// To regenerate .vscode/mcp.json manually:
+	//   bash .github/skills/setup-mcp-server/scripts/bootstrap.sh --dry-run
+	// Or, to fully bootstrap (clone + build + generate configs):
+	//   bash .github/skills/setup-mcp-server/scripts/bootstrap.sh
+	// ──────────────────────────────────────────────────────────────────────────
+	//
+	// Add new servers using the setup-mcp-server skill:
+	//   Type  /setup-mcp-server  in Copilot Chat, then provide a GitHub URL.
+	//
+	// Entry template:
+	// "<server-key>": {
+	//   "type": "stdio",
+	//   "command": "docker",
+	//   "args": ["run", "--rm", "-i", "mcp-<repo-name>"],
+	//   "env": {}
+	// }
+	//
+	// For servers that need secrets, use VS Code input variables:
+	//   "env": { "API_KEY": "${input:myApiKey}" }
+	// and declare inputs at the bottom of this file.
+	"servers": {
+		// Git MCP server — provides git_status, git_diff, git_log, git_commit, etc.
+		// repo_path is passed per-tool call; /home is bind-mounted so host paths resolve inside the container.
+		// Source: https://github.com/modelcontextprotocol/servers/tree/main/src/git
+		//
+		// Identity & config notes:
+		//   ~/.gitconfig is bind-mounted so the container uses the host user's name,
+		//   email and any other git settings automatically.
+		//
+		//   GIT_CONFIG_* env vars override safe.directory inside the container so git
+		//   does not refuse to operate on bind-mounted repos owned by a different UID.
+		"git": {
+			"type": "stdio",
+			"command": "docker",
+			"args": [
+				"run",
+				"--rm",
+				"-i",
+				// Run as host user to avoid permission issues with bind mounts
+				"--user",
+				"<HOST_UID>:<HOST_GID>",
+				// Set HOME so Python and git use the right config directory
+				"-e",
+				"HOME=<HOST_HOME>",
+				// Mount the full /home tree so any repo path on the host is reachable
+				"--mount",
+				"type=bind,src=/home,dst=/home",
+				// Mount host ~/.gitconfig so the container inherits identity & settings
+				"--mount",
+				"type=bind,src=<HOST_HOME>/.gitconfig,dst=<HOST_HOME>/.gitconfig,readonly",
+				// Allow git to operate on any directory regardless of UID mismatch
+				"-e",
+				"GIT_CONFIG_COUNT=1",
+				"-e",
+				"GIT_CONFIG_KEY_0=safe.directory",
+				"-e",
+				"GIT_CONFIG_VALUE_0=*",
+				"mcp-servers-git:latest"
+			]
+		}
+	}
+}

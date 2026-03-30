@@ -1,0 +1,26 @@
+# ── MCP server source repos ────────────────────────────────────────────────────
+# Cloned by setup-mcp-server / bootstrap.sh — do NOT check these in.
+# Rebuild with: bash .github/skills/setup-mcp-server/scripts/bootstrap.sh
+mcp-servers/*/
+
+# Keep the directory itself so git preserves it
+!mcp-servers/.gitkeep
+
+# ── Generated MCP config files ─────────────────────────────────────────────────
+# .vscode/mcp.json and .cline/mcp.json are generated from their .example templates
+# by bootstrap.sh. They contain host-specific values (UID, GID, username, home
+# directory) and must NOT be checked in to avoid leaking user identity in public
+# repositories.
+#
+# The .example files (checked in) are the source of truth for config structure.
+# Regenerate with:
+#   bash .github/skills/setup-mcp-server/scripts/bootstrap.sh
+.vscode/mcp.json
+.cline/mcp.json
+
+# ── Override global .gitignore (e.g. .vscode/*, .cline/*) ─────────────────────
+# These files ARE intentionally checked in. The negations ensure a global
+# gitignore rule (e.g. ".vscode/*") doesn't accidentally exclude them.
+!.vscode/mcp.example.json
+!.vscode/settings.json
+!.cline/mcp.example.json

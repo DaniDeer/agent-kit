@@ -1,0 +1,67 @@
+{
+	// MCP servers for the agent framework — Cline edition.
+	// Each server runs in a Docker container on the host (stdio transport).
+	//
+	// ── HOW THIS FILE WORKS ────────────────────────────────────────────────────
+	// This is a TEMPLATE file (.cline/mcp.example.json).
+	// The real .cline/mcp.json is git-ignored and generated from this template
+	// by bootstrap.sh, which substitutes the placeholders below with actual host
+	// values:
+	//
+	//   <HOST_USER>   →  $(id -un)           e.g. alice
+	//   <HOST_UID>    →  $(id -u)            e.g. 1000
+	//   <HOST_GID>    →  $(id -g)            e.g. 1000
+	//   <HOST_HOME>   →  $HOME               e.g. /home/alice
+	//
+	// To regenerate .cline/mcp.json manually:
+	//   bash .github/skills/setup-mcp-server/scripts/bootstrap.sh --dry-run
+	// Or, to fully bootstrap (clone + build + generate configs):
+	//   bash .github/skills/setup-mcp-server/scripts/bootstrap.sh
+	// ──────────────────────────────────────────────────────────────────────────
+	//
+	// This file is the Cline equivalent of .vscode/mcp.example.json.
+	// Add new servers using the setup-mcp-server skill.
+	//
+	// Entry template:
+	// "<server-key>": {
+	//   "command": "docker",
+	//   "args": ["run", "--rm", "-i", "mcp-<repo-name>"],
+	//   "disabled": false,
+	//   "alwaysAllow": []
+	// }
+	"mcpServers": {
+		// Git MCP server — provides git_status, git_diff, git_log, git_commit, etc.
+		// repo_path is passed per-tool call; /home is bind-mounted so host paths resolve inside the container.
+		// Source: https://github.com/modelcontextprotocol/servers/tree/main/src/git
+		"git": {
+			"command": "docker",
+			"args": [
+				"run",
+				"--rm",
+				"-i",
+				// Run as host user to avoid permission issues with bind mounts
+				"--user",
+				"<HOST_UID>:<HOST_GID>",
+				// Set HOME so Python and git use the right config directory
+				"-e",
+				"HOME=<HOST_HOME>",
+				// Mount the full /home tree so any repo path on the host is reachable
+				"--mount",
+				"type=bind,src=/home,dst=/home",
+				// Mount host ~/.gitconfig so the container inherits identity & settings
+				"--mount",
+				"type=bind,src=<HOST_HOME>/.gitconfig,dst=<HOST_HOME>/.gitconfig,readonly",
+				// Allow git to operate on any directory regardless of UID mismatch
+				"-e",
+				"GIT_CONFIG_COUNT=1",
+				"-e",
+				"GIT_CONFIG_KEY_0=safe.directory",
+				"-e",
+				"GIT_CONFIG_VALUE_0=*",
+				"mcp-servers-git:latest"
+			],
+			"disabled": false,
+			"alwaysAllow": []
+		}
+	}
+}
