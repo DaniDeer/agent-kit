@@ -13,6 +13,7 @@ A VS Code-based AI agent framework with Docker-hosted MCP servers and reusable a
 
 ```
 .github/
+  copilot-instructions.md    ← Copilot always-on working agreements [checked in]
   skills/
     setup-mcp-server/        ← skill: add a new MCP server from a GitHub URL
       SKILL.md
@@ -27,6 +28,10 @@ A VS Code-based AI agent framework with Docker-hosted MCP servers and reusable a
       SKILL.md
       scripts/
         fix-docker-perms.sh
+    update-skills/           ← skill: sync SKILL.md files at end of session
+      SKILL.md
+    disk-cleanup/            ← skill: remove unused Docker images and cloned repos
+      SKILL.md
 .mcp-dockerfiles/            ← patched Dockerfiles (one per server) [checked in]
   servers-git/
     Dockerfile
@@ -39,6 +44,7 @@ A VS Code-based AI agent framework with Docker-hosted MCP servers and reusable a
   mcp.json                   ← Cline MCP config (generated, git-ignored)
 mcp-catalog.yaml             ← list of all MCP servers      [checked in]
 mcp-servers/                 ← cloned repos & build context [git-ignored]
+.clinerules                  ← Cline always-on working agreements  [checked in]
 .gitignore
 README.md
 ```

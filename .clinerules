@@ -1,0 +1,67 @@
+# Agent Working Agreements
+
+#
+
+# This file is read automatically by Cline at the start of every session.
+
+# Keep it accurate — it is the persistent memory that carries working conventions
+
+# across sessions.
+
+---
+
+## Repository overview
+
+This is an agent framework built around Docker-hosted MCP servers and reusable skills.
+Key files to read for context at the start of any session:
+
+- `README.md` — architecture, bootstrap instructions, conventions
+- `mcp-catalog.yaml` — registered MCP servers (source of truth)
+- `.github/skills/<skill>/SKILL.md` — procedure for each skill
+
+---
+
+## Skills are living documents
+
+Skills are not static. They improve as we discover new edge cases, new server types,
+and new conventions.
+
+**The rule: fix → codify → commit.**
+
+- When a script behaviour changes, update the corresponding `SKILL.md` in the same commit.
+- When a new edge case is handled (e.g. a new Dockerfile base image pattern, a new flag),
+  add it to the relevant `SKILL.md` so the next session starts with that knowledge.
+- When a workflow changes substantially, update `README.md`.
+
+---
+
+## End-of-session skill sync
+
+After any session where skills, scripts, or conventions changed, proactively offer to run
+the update-skills skill, or the user can trigger it explicitly:
+
+> "Update the skills to reflect what we did today."
+
+See `.github/skills/update-skills/SKILL.md` for the full procedure.
+
+---
+
+## MCP server install checklist
+
+Every new MCP server must end with all of the following committed:
+
+1. Entry in `mcp-catalog.yaml` — `key`, `url`, `patched_dockerfile`, `description`, `notes`
+2. Patched Dockerfile at `.mcp-dockerfiles/<name>/Dockerfile` (uses Docker ARG, no hardcoded values)
+3. `.vscode/mcp.example.json` updated with the new server entry
+4. `.cline/mcp.example.json` updated with the new server entry
+5. If the skill scripts changed to handle this server type, update the SKILL.md too
+
+---
+
+## No PII in commits
+
+- Generated `.vscode/mcp.json` and `.cline/mcp.json` are git-ignored — never commit them.
+- Patched Dockerfiles must use `ARG HOST_UID`, `ARG HOST_GID`, `ARG HOST_USER` — no hardcoded
+  usernames, UIDs, or home directory paths.
+- SKILL.md and script files must use relative paths, not absolute `/home/<user>/...` paths.
+- Run `git ls-files | xargs grep -l "<username>"` before pushing to catch any leaks.
