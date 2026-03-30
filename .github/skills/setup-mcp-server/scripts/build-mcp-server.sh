@@ -206,3 +206,7 @@ cat <<JSON
   }
 JSON
 echo "─────────────────────────────────────────────────────"
+
+# ── Regenerate mcp.json config files from .example templates ─────────────────
+# Keeps .vscode/mcp.json and .cline/mcp.json up to date whenever a server is built.
+bash "$ROOT_DIR/.github/skills/generate-mcp-configs/scripts/generate-mcp-configs.sh" --root "$ROOT_DIR"

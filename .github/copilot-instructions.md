@@ -21,13 +21,14 @@ Key files to read for context at the start of any session:
 
 Available skills (invoke via `/skill-name` in Copilot Chat):
 
-| Skill                | Trigger                   | What it does                                              |
-| -------------------- | ------------------------- | --------------------------------------------------------- |
-| `setup-mcp-server`   | `/setup-mcp-server <url>` | Clone, patch, build, register a new MCP server            |
-| `update-mcp-servers` | `/update-mcp-servers`     | Pull upstream changes and rebuild changed images          |
-| `fix-docker-perms`   | (called by setup)         | Patch a Dockerfile for non-root use via Docker ARG        |
-| `update-skills`      | `/update-skills`          | Sync SKILL.md files and README to reflect session changes |
-| `disk-cleanup`       | `/disk-cleanup`           | Remove unused Docker images and cloned repos              |
+| Skill                  | Trigger                   | What it does                                                            |
+| ---------------------- | ------------------------- | ----------------------------------------------------------------------- |
+| `setup-mcp-server`     | `/setup-mcp-server <url>` | Clone, patch, build, register a new MCP server                          |
+| `update-mcp-servers`   | `/update-mcp-servers`     | Pull upstream changes and rebuild changed images                        |
+| `fix-docker-perms`     | (called by setup)         | Patch a Dockerfile for non-root use via Docker ARG                      |
+| `generate-mcp-configs` | `/generate-mcp-configs`   | Regenerate .vscode/mcp.json and .cline/mcp.json from .example templates |
+| `update-skills`        | `/update-skills`          | Sync SKILL.md files and README to reflect session changes               |
+| `disk-cleanup`         | `/disk-cleanup`           | Remove unused Docker images and cloned repos                            |
 
 ---
 

@@ -75,29 +75,7 @@ for URL in "${URLS[@]}"; do
 done
 
 # ── Generate mcp.json files from .example templates ──────────────────────────
-# The .example files are checked in and contain <HOST_*> placeholders.
-# The generated .json files are git-ignored (they contain host-specific values).
-generate_mcp_config() {
-  local example="$1"
-  local output="$2"
-  if [[ ! -f "$example" ]]; then
-    warn "Template not found: $example — skipping config generation"
-    return
-  fi
-  log "Generating $output from $example"
-  sed \
-    -e "s|<HOST_UID>|$(id -u)|g" \
-    -e "s|<HOST_GID>|$(id -g)|g" \
-    -e "s|<HOST_USER>|$(id -un)|g" \
-    -e "s|<HOST_HOME>|$HOME|g" \
-    -e '/^\s*\/\//d' \
-    "$example" > "$output"
-  log "Generated  : $output"
-}
-
-log "Generating MCP config files from templates..."
-generate_mcp_config "$ROOT_DIR/.vscode/mcp.example.json" "$ROOT_DIR/.vscode/mcp.json"
-generate_mcp_config "$ROOT_DIR/.cline/mcp.example.json"  "$ROOT_DIR/.cline/mcp.json"
+bash "$ROOT_DIR/.github/skills/generate-mcp-configs/scripts/generate-mcp-configs.sh" --root "$ROOT_DIR"
 echo ""
 
 # ── Summary ───────────────────────────────────────────────────────────────────

@@ -19,6 +19,9 @@ Key files to read for context at the start of any session:
 - `mcp-catalog.yaml` — registered MCP servers (source of truth)
 - `.github/skills/<skill>/SKILL.md` — procedure for each skill
 
+Available skills: `setup-mcp-server`, `update-mcp-servers`, `fix-docker-perms`,
+`generate-mcp-configs`, `update-skills`, `disk-cleanup`
+
 ---
 
 ## Skills are living documents
