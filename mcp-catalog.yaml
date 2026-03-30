@@ -33,3 +33,8 @@ servers:
     url: https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking
     patched_dockerfile: .mcp-dockerfiles/servers-sequentialthinking/Dockerfile
     description: An MCP server implementation that provides a tool for dynamic and reflective problem-solving through a structured thinking process.
+
+  - key: memory
+    url: https://github.com/modelcontextprotocol/servers/tree/main/src/memory
+    patched_dockerfile: .mcp-dockerfiles/servers-memory/Dockerfile
+    description: A basic implementation of persistent memory using a local knowledge graph. This lets an agent remember information about the user across chats.

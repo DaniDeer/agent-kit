@@ -72,6 +72,31 @@
 			"args": ["run", "--rm", "-i", "mcp-servers-sequentialthinking:latest"],
 			"disabled": false,
 			"alwaysAllow": []
+		},
+
+		// Memory MCP server — persistent knowledge graph across sessions.
+		// Stores data in <HOST_HOME>/.mcp-memory/memory.jsonl (bind-mounted into the container).
+		// Run as the host user so the file is owned correctly on the host filesystem.
+		// Source: https://github.com/modelcontextprotocol/servers/tree/main/src/memory
+		"memory": {
+			"command": "docker",
+			"args": [
+				"run",
+				"--rm",
+				"-i",
+				// Run as host user so the memory file is owned by the host user
+				"--user",
+				"<HOST_UID>:<HOST_GID>",
+				// Set MEMORY_FILE_PATH to a persistent, writable location
+				"-e",
+				"MEMORY_FILE_PATH=/memory/memory.jsonl",
+				// Bind-mount ~/.mcp-memory on the host to /memory in the container
+				"--mount",
+				"type=bind,src=<HOST_HOME>/.mcp-memory,dst=/memory",
+				"mcp-servers-memory:latest"
+			],
+			"disabled": false,
+			"alwaysAllow": []
 		}
 	}
 }
