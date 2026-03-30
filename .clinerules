@@ -20,7 +20,7 @@ Key files to read for context at the start of any session:
 - `.github/skills/<skill>/SKILL.md` — procedure for each skill
 
 Available skills: `setup-mcp-server`, `update-mcp-servers`, `fix-docker-perms`,
-`generate-mcp-configs`, `update-skills`, `disk-cleanup`
+`generate-mcp-configs`, `check-mcp-servers`, `update-skills`, `disk-cleanup`
 
 ---
 

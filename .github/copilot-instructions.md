@@ -27,6 +27,7 @@ Available skills (invoke via `/skill-name` in Copilot Chat):
 | `update-mcp-servers`   | `/update-mcp-servers`     | Pull upstream changes and rebuild changed images                        |
 | `fix-docker-perms`     | (called by setup)         | Patch a Dockerfile for non-root use via Docker ARG                      |
 | `generate-mcp-configs` | `/generate-mcp-configs`   | Regenerate .vscode/mcp.json and .cline/mcp.json from .example templates |
+| `check-mcp-servers`    | `/check-mcp-servers`      | Read-only health check: clone, Dockerfile, image, SHA currency          |
 | `update-skills`        | `/update-skills`          | Sync SKILL.md files and README to reflect session changes               |
 | `disk-cleanup`         | `/disk-cleanup`           | Remove unused Docker images and cloned repos                            |
 

@@ -34,6 +34,10 @@ A VS Code-based AI agent framework with Docker-hosted MCP servers and reusable a
       SKILL.md
       scripts/
         generate-mcp-configs.sh
+    check-mcp-servers/       ← skill: read-only health check for all catalog servers
+      SKILL.md
+      scripts/
+        check-mcp-servers.sh
     disk-cleanup/            ← skill: remove unused Docker images and cloned repos
       SKILL.md
 .mcp-dockerfiles/            ← patched Dockerfiles (one per server) [checked in]
