@@ -209,6 +209,78 @@ symlinks will point to the wrong absolute path.
 
 ---
 
+## Special Case: Node.js Alpine Images (node:xx-alpine)
+
+Alpine-based `node` images (e.g. `node:22-alpine`, `node:22.12-alpine`) already
+include a built-in `node` user at **uid/gid 1000**. Using `addgroup -g 1000` will fail:
+
+```
+addgroup: gid '1000' in use
+```
+
+### The fix
+
+Delete the existing `node` user and group first, then create your own:
+
+```dockerfile
+ARG HOST_UID=1000
+ARG HOST_GID=1000
+ARG HOST_USER=user
+
+RUN set -eux; \
+    (deluser  node 2>/dev/null || true); \
+    (delgroup node 2>/dev/null || true); \
+    addgroup -g "${HOST_GID}" "${HOST_USER}"; \
+    adduser  -D -u "${HOST_UID}" -G "${HOST_USER}" "${HOST_USER}"
+```
+
+Note the Alpine syntax differences vs Debian:
+
+|              | Debian (`slim-bookworm`)               | Alpine                                 |
+| ------------ | -------------------------------------- | -------------------------------------- |
+| Create group | `groupadd -g <gid> <name>`             | `addgroup -g <gid> <name>`             |
+| Create user  | `useradd -m -u <uid> -g <name> <name>` | `adduser -D -u <uid> -G <name> <name>` |
+| Delete user  | `userdel <name>`                       | `deluser <name>`                       |
+| Delete group | `groupdel <name>`                      | `delgroup <name>`                      |
+
+The `deluser`/`delgroup` step is safe even when `HOST_GID` ≠ 1000 (the `|| true` handles
+the case where neither command finds the `node` user/group to delete).
+
+---
+
+## Special Case: Monorepo Dockerfiles with Root-Relative COPY Paths
+
+Some MCP servers in monorepos (e.g. `modelcontextprotocol/servers`) have Dockerfiles
+designed to be built from the **monorepo root**, not the subdirectory. They use paths like:
+
+```dockerfile
+COPY src/sequentialthinking /app   # expects monorepo root as build context
+COPY tsconfig.json /tsconfig.json  # expects root-level config file
+```
+
+Since `build-mcp-server.sh` uses the **subpath directory** as the build context
+(e.g. `mcp-servers/servers-sequentialthinking/src/sequentialthinking/`), these paths
+will fail with `not found`.
+
+### The fix
+
+In the patched Dockerfile, replace root-relative paths with subdirectory-relative ones:
+
+1. **`COPY src/<subdir> /app`** → **`COPY . /app`** (`.` = the subdir, which is the build context)
+2. **`COPY tsconfig.json /tsconfig.json`** — if the referenced file lives outside the
+   subdir (e.g. at the monorepo root), check whether the subdir has its own copy.
+   - If the subdir has its own `tsconfig.json` that extends the root one (via `"extends": "../../tsconfig.json"`),
+     inline the root tsconfig content as a `RUN printf ...` step so it's available at
+     the path the compiler expects:
+     ```dockerfile
+     RUN printf '{ "compilerOptions": { ... } }\n' > /tsconfig.json
+     ```
+   - Copy the content verbatim from `mcp-servers/<name>/<root>/tsconfig.json`.
+
+Document both patches in the patched Dockerfile's header comment.
+
+---
+
 ## Best Practices
 
 - **Never modify the original** — always patch in `.mcp-dockerfiles/<server-name>/Dockerfile`.

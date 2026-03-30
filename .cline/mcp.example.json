@@ -62,6 +62,16 @@
 			],
 			"disabled": false,
 			"alwaysAllow": []
+		},
+
+		// Sequential Thinking MCP server — structured, reflective problem-solving via a chain-of-thought tool.
+		// No bind mounts or env vars required — runs fully self-contained.
+		// Source: https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking
+		"sequentialthinking": {
+			"command": "docker",
+			"args": ["run", "--rm", "-i", "mcp-servers-sequentialthinking:latest"],
+			"disabled": false,
+			"alwaysAllow": []
 		}
 	}
 }
