@@ -122,21 +122,26 @@ Scripts should:
 - Print a clear summary table or status at the end
 - Be callable standalone AND from other scripts (idempotent where possible)
 
-### Step 5 — Update `.clinerules`
+### Step 5 — Update `.clinerules` and `starter-kit/.clinerules`
 
-Add the new skill to the category table in `.clinerules`:
+Add the new skill to the category table in **both** files:
 
 ```
 | `<category>` | ..., `<category>_<name>` |
 ```
 
-### Step 6 — Update `.github/copilot-instructions.md`
+> `starter-kit/.clinerules` is the single source of truth for the table that gets
+> copied into new projects. Always update it in the same commit.
 
-Add a row to the skills table:
+### Step 6 — Update `.github/copilot-instructions.md` and `starter-kit/.github/copilot-instructions.md`
+
+Add a row to the skills table in **both** files:
 
 ```markdown
 | `<name>` | `/<name> [args]` | One-line description of what it does |
 ```
+
+> Same principle: `starter-kit/.github/copilot-instructions.md` must stay in sync.
 
 ### Step 7 — Update `README.md`
 
@@ -250,6 +255,8 @@ and category — `project_` prefix marks them as project-local.
 - [ ] `## Procedure` has numbered steps with clear actions
 - [ ] Scripts use `set -euo pipefail`, relative paths, no PII
 - [ ] `.clinerules` updated
+- [ ] `starter-kit/.clinerules` updated (starter-kit template sync rule)
 - [ ] `.github/copilot-instructions.md` updated
+- [ ] `starter-kit/.github/copilot-instructions.md` updated (starter-kit template sync rule)
 - [ ] `README.md` structure tree updated
 - [ ] All changes committed together

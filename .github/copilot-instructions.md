@@ -45,6 +45,25 @@ This repo supports multiple agents: **Cline** reads `.clinerules` and **GitHub C
 
 **Rule: any change to one must be mirrored in the other in the same commit.**
 
+---
+
+## Starter-kit template sync rule
+
+`starter-kit/.clinerules` and `starter-kit/.github/copilot-instructions.md` are the
+single source of truth for the skills tables that get copied into every new project.
+
+**Rule: any time a skill is added, renamed, or removed, update both starter-kit
+templates in the same commit as the skill itself.**
+
+- `starter-kit/.clinerules` — category/skills table (Cline format)
+- `starter-kit/.github/copilot-instructions.md` — trigger table (Copilot format)
+- The two starter-kit files must stay in sync with each other AND with the root
+  `.clinerules` / `.github/copilot-instructions.md` skill lists.
+
+---
+
+## Multi-agent sync rule (continued)
+
 The two files are allowed to differ only in agent-specific formatting:
 
 - `.clinerules` uses a category/skills table

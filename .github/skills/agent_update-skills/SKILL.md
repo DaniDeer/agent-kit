@@ -68,6 +68,14 @@ Update any file that is out of date, then commit everything together.
 - Do the skill tables and working agreements reflect the current set of skills?
 - If a new skill was added, is it listed?
 
+### 8. `starter-kit/.clinerules` and `starter-kit/.github/copilot-instructions.md`
+
+- Do the starter-kit templates reflect the current skill list? (These are copied into
+  new projects — they must stay in sync with the root config files.)
+- `starter-kit/.clinerules`: category/skills table matches root `.clinerules`?
+- `starter-kit/.github/copilot-instructions.md`: trigger table matches root `copilot-instructions.md`?
+- Both starter-kit files in sync with each other?
+
 ---
 
 ## How to commit

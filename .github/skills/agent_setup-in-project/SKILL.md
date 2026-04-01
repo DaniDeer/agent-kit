@@ -59,6 +59,10 @@ The agent will run **Steps 2–7** below to complete the full setup.
 
 ### Step 1 — Add the agent framework as a git submodule
 
+> **Skip if already done:** If `.agent/` already exists with content (e.g. added by
+> the devcontainer feature or `curl | bash` init.sh), go straight to Step 2.
+> The agent framework is already bootstrapped — no need to re-clone.
+
 ```bash
 cd <PROJECT_ROOT>
 git submodule add <AGENT_REPO> .agent
@@ -69,48 +73,32 @@ This creates `.agent/` with the full framework and a `.gitmodules` file.
 
 ### Step 2 — Create the thin `.clinerules`
 
-Create `.clinerules` at the project root:
+> **Skip if already exists** (created by init.sh or the devcontainer feature).
 
-```markdown
-# Project: <project-name>
+The canonical template lives at `.agent/starter-kit/.clinerules`. Copy it and
+substitute the project name:
 
-## Agent framework
-
-Uses the shared agent framework from `.agent/`.
-At session start, read `.agent/.clinerules` for all framework skills, MCP setup,
-and conventions.
-
-## Project-specific skills
-
-`.github/skills/` contains project-local skills:
-
-| Category  | Skills                                                                    |
-| --------- | ------------------------------------------------------------------------- |
-| `project` | _(none yet — add project-specific skills here as `project_<name>` dirs)\_ |
-
-## Project-specific working agreements
-
-<add project-specific notes here>
+```bash
+sed "s/<project-name>/$(basename "$PWD")/g" .agent/starter-kit/.clinerules > .clinerules
 ```
+
+> **Why copy from starter-kit?** `starter-kit/.clinerules` is the single source of
+> truth for the project template — skill tables, conventions, and formatting all live
+> there. Never duplicate the table manually; update it in `starter-kit/` instead.
 
 ### Step 3 — Create the thin `.github/copilot-instructions.md`
 
+> **Skip if already exists** (created by init.sh or the devcontainer feature).
+
 ```bash
 mkdir -p .github
+sed "s/<project-name>/$(basename "$PWD")/g" \
+  .agent/starter-kit/.github/copilot-instructions.md \
+  > .github/copilot-instructions.md
 ```
 
-Create `.github/copilot-instructions.md`:
-
-```markdown
-# Project: <project-name>
-
-Uses the shared agent framework from `.agent/`.
-Read `.agent/.github/copilot-instructions.md` for all framework skills and conventions.
-
-## Project-specific skills
-
-Project-local skills live in `.github/skills/` (using `project_<name>` directories).
-```
+Same principle: `.agent/starter-kit/.github/copilot-instructions.md` is the single
+source of truth for the Copilot template.
 
 ### Step 4 — Update `.gitignore`
 
@@ -131,6 +119,11 @@ Add or update `postCreateCommand` to bootstrap the agent framework on container 
 	"postCreateCommand": "git submodule update --init --recursive && bash .agent/.github/skills/mcp_setup-mcp-server/scripts/bootstrap.sh && bash .agent/.github/skills/mcp_generate-mcp-configs/scripts/generate-mcp-configs.sh --root .agent --output-root ."
 }
 ```
+
+> **Already running in a container?** The `postCreateCommand` has no effect on the
+> currently running container — that one was already bootstrapped by the devcontainer
+> feature or `init.sh`. This command is essential for future container rebuilds and for
+> teammates cloning the project fresh. Always commit it.
 
 > **Note on Docker in devcontainers:** `bootstrap.sh` builds Docker images and requires
 > Docker to be available. Use `"features": {"ghcr.io/devcontainers/features/docker-in-docker:2": {}}`
