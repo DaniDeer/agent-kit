@@ -24,7 +24,7 @@ Available skills:
 | Category | Skills                                                                                                                                                      |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mcp`    | `mcp_setup-mcp-server`, `mcp_update-mcp-servers`, `mcp_fix-docker-perms`, `mcp_generate-mcp-configs`, `mcp_check-mcp-servers`, `mcp_start-http-mcp-servers` |
-| `agent`  | `agent_create-skill`, `agent_update-skills`, `agent_git-commit`, `agent_setup-in-project`, `agent_update-agent-framework`                                   |
+| `agent`  | `agent_create-skill`, `agent_update-skills`, `agent_sync-skill-tables`, `agent_git-commit`, `agent_setup-in-project`, `agent_update-agent-framework`        |
 | `system` | `system_disk-cleanup`                                                                                                                                       |
 
 ---
@@ -40,16 +40,13 @@ This repo supports multiple agents: **Cline** reads `.clinerules` and **GitHub C
 
 ## Starter-kit template sync rule
 
-`starter-kit/.clinerules` and `starter-kit/.github/copilot-instructions.md` are the
-single source of truth for the skills tables that get copied into every new project.
+Root `.clinerules` and `.github/copilot-instructions.md` are the source of truth for
+the skills list. `starter-kit/` templates and project copies are derived from them.
 
-**Rule: any time a skill is added, renamed, or removed, update both starter-kit
-templates in the same commit as the skill itself.**
+**Rule: after any skill change, run `agent_sync-skill-tables` to propagate the update
+to `starter-kit/` templates and (if in a project) to project config files.**
 
-- `starter-kit/.clinerules` — category/skills table (Cline format)
-- `starter-kit/.github/copilot-instructions.md` — trigger table (Copilot format)
-- The two starter-kit files must stay in sync with each other AND with the root
-  `.clinerules` / `.github/copilot-instructions.md` skill lists.
+See `.github/skills/agent_sync-skill-tables/SKILL.md` for the hierarchy and procedure.
 
 ---
 

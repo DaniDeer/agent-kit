@@ -17,6 +17,7 @@ Available framework skills (invoke via `/skill-name` in Copilot Chat):
 | `git-commit`             | `/git-commit`             | Commit with Conventional Commits format and run PII check               |
 | `setup-in-project`       | `/setup-in-project`       | Wire the agent framework into a project as a git submodule              |
 | `update-agent-framework` | `/update-agent-framework` | Pull latest framework into a project, or push improvements back         |
+| `sync-skill-tables`      | `/sync-skill-tables`      | Propagate root skills tables to starter-kit templates and project files |
 | `disk-cleanup`           | `/disk-cleanup`           | Remove unused Docker images and cloned repos                            |
 
 Full procedures: `.agent/.github/skills/<category>_<name>/SKILL.md`

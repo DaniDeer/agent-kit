@@ -35,6 +35,7 @@ Available skills (invoke via `/skill-name` in Copilot Chat):
 | `git-commit`             | `/git-commit`             | Commit with Conventional Commits format and run PII check               |
 | `setup-in-project`       | `/setup-in-project <url>` | Wire the agent framework into a project as a git submodule              |
 | `update-agent-framework` | `/update-agent-framework` | Pull latest framework into a project, or push improvements back         |
+| `sync-skill-tables`      | `/sync-skill-tables`      | Propagate root skills tables to starter-kit templates and project files |
 
 ---
 
@@ -49,16 +50,13 @@ This repo supports multiple agents: **Cline** reads `.clinerules` and **GitHub C
 
 ## Starter-kit template sync rule
 
-`starter-kit/.clinerules` and `starter-kit/.github/copilot-instructions.md` are the
-single source of truth for the skills tables that get copied into every new project.
+Root `.clinerules` and `.github/copilot-instructions.md` are the source of truth for
+the skills list. `starter-kit/` templates and project copies are derived from them.
 
-**Rule: any time a skill is added, renamed, or removed, update both starter-kit
-templates in the same commit as the skill itself.**
+**Rule: after any skill change, run `agent_sync-skill-tables` to propagate the update
+to `starter-kit/` templates and (if in a project) to project config files.**
 
-- `starter-kit/.clinerules` — category/skills table (Cline format)
-- `starter-kit/.github/copilot-instructions.md` — trigger table (Copilot format)
-- The two starter-kit files must stay in sync with each other AND with the root
-  `.clinerules` / `.github/copilot-instructions.md` skill lists.
+See `.github/skills/agent_sync-skill-tables/SKILL.md` for the hierarchy and procedure.
 
 ---
 

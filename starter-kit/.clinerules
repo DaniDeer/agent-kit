@@ -9,7 +9,7 @@ Available framework skills:
 | Category | Skills                                                                                                                                                      |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mcp`    | `mcp_setup-mcp-server`, `mcp_update-mcp-servers`, `mcp_fix-docker-perms`, `mcp_generate-mcp-configs`, `mcp_check-mcp-servers`, `mcp_start-http-mcp-servers` |
-| `agent`  | `agent_create-skill`, `agent_update-skills`, `agent_git-commit`, `agent_setup-in-project`, `agent_update-agent-framework`                                   |
+| `agent`  | `agent_create-skill`, `agent_update-skills`, `agent_sync-skill-tables`, `agent_git-commit`, `agent_setup-in-project`, `agent_update-agent-framework`        |
 | `system` | `system_disk-cleanup`                                                                                                                                       |
 
 Full skill procedures: `.agent/.github/skills/<category>_<name>/SKILL.md`

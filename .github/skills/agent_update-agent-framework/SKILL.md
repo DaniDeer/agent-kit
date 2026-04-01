@@ -33,7 +33,16 @@ git submodule update --remote --merge
 This fetches the latest `main` branch of the agent framework and merges it into
 the local `.agent/` submodule checkout.
 
-### Step 2 — Regenerate MCP configs
+### Step 2 — Refresh project config files if skills changed
+
+If the pull updated the framework's skill list (check with
+`git diff .agent -- starter-kit/.clinerules`), run `agent_sync-skill-tables`
+to refresh the project's `.clinerules` and `.github/copilot-instructions.md`
+framework skills tables. Preserve all project-specific content.
+
+See `.agent/.github/skills/agent_sync-skill-tables/SKILL.md`.
+
+### Step 3 — Regenerate MCP configs
 
 If new MCP servers were added to the catalog or existing configs changed:
 
@@ -43,7 +52,7 @@ bash .agent/.github/skills/mcp_generate-mcp-configs/scripts/generate-mcp-configs
   --output-root .
 ```
 
-### Step 3 — (Optional) Rebuild MCP images
+### Step 4 — (Optional) Rebuild MCP images
 
 If the server Dockerfiles changed or new servers were added:
 
@@ -51,10 +60,10 @@ If the server Dockerfiles changed or new servers were added:
 bash .agent/.github/skills/mcp_setup-mcp-server/scripts/bootstrap.sh --force
 ```
 
-### Step 4 — Commit the submodule bump
+### Step 5 — Commit
 
 ```bash
-git add .agent
+git add .agent .clinerules .github/copilot-instructions.md
 git commit -m "chore(agent): update agent framework submodule to $(cd .agent && git rev-parse --short HEAD)"
 ```
 

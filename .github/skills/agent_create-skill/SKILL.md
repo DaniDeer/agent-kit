@@ -122,26 +122,19 @@ Scripts should:
 - Print a clear summary table or status at the end
 - Be callable standalone AND from other scripts (idempotent where possible)
 
-### Step 5 — Update `.clinerules` and `starter-kit/.clinerules`
+### Step 5 — Update root config files
 
-Add the new skill to the category table in **both** files:
+Add the new skill to the root source-of-truth files:
 
-```
-| `<category>` | ..., `<category>_<name>` |
-```
+- `.clinerules` — add to the category/skills table
+- `.github/copilot-instructions.md` — add a row to the trigger table
 
-> `starter-kit/.clinerules` is the single source of truth for the table that gets
-> copied into new projects. Always update it in the same commit.
+### Step 6 — Sync starter-kit templates
 
-### Step 6 — Update `.github/copilot-instructions.md` and `starter-kit/.github/copilot-instructions.md`
+Run `agent_sync-skill-tables` to propagate the updated skill list from the root config
+files to `starter-kit/.clinerules` and `starter-kit/.github/copilot-instructions.md`.
 
-Add a row to the skills table in **both** files:
-
-```markdown
-| `<name>` | `/<name> [args]` | One-line description of what it does |
-```
-
-> Same principle: `starter-kit/.github/copilot-instructions.md` must stay in sync.
+See `.github/skills/agent_sync-skill-tables/SKILL.md`.
 
 ### Step 7 — Update `README.md`
 
@@ -254,9 +247,8 @@ and category — `project_` prefix marks them as project-local.
 - [ ] `## When to run` covers both explicit invocation and proactive triggers
 - [ ] `## Procedure` has numbered steps with clear actions
 - [ ] Scripts use `set -euo pipefail`, relative paths, no PII
-- [ ] `.clinerules` updated
-- [ ] `starter-kit/.clinerules` updated (starter-kit template sync rule)
-- [ ] `.github/copilot-instructions.md` updated
-- [ ] `starter-kit/.github/copilot-instructions.md` updated (starter-kit template sync rule)
+- [ ] `.clinerules` updated (source of truth)
+- [ ] `.github/copilot-instructions.md` updated (source of truth)
+- [ ] `agent_sync-skill-tables` run (propagates to starter-kit templates)
 - [ ] `README.md` structure tree updated
 - [ ] All changes committed together

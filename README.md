@@ -59,6 +59,22 @@ The agent generates MCP configs, configures the devcontainer, and commits everyt
 
 > **Want to verify first?** See [TESTING.md](TESTING.md) for a step-by-step test procedure.
 
+### Skills table hierarchy
+
+The skills list is maintained through a source-of-truth chain so it only needs
+to be updated in one place:
+
+```
+.clinerules / .github/copilot-instructions.md   ← source of truth (this repo)
+      ↓  agent_sync-skill-tables
+starter-kit/.clinerules / .github/copilot-instructions.md  ← project templates
+      ↓  init.sh / agent_update-agent-framework
+project/.clinerules / .github/copilot-instructions.md      ← project copies
+```
+
+After adding or removing a skill, run `agent_sync-skill-tables` to propagate the
+change to all downstream files automatically.
+
 ### Day-to-day in a project
 
 | Goal                             | How                                                              |
@@ -110,6 +126,8 @@ The agent generates MCP configs, configures the devcontainer, and commits everyt
     agent_setup-in-project/      ← skill: wire agent framework into a project as a git submodule
       SKILL.md
     agent_update-agent-framework/ ← skill: pull/push agent framework submodule in a project
+      SKILL.md
+    agent_sync-skill-tables/     ← skill: propagate skills tables from root to starter-kit + project
       SKILL.md
     system_disk-cleanup/         ← skill: remove unused Docker images and cloned repos
       SKILL.md
