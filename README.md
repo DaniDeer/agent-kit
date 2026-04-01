@@ -57,6 +57,8 @@ Then open the project in VS Code and tell the agent:
 
 The agent generates MCP configs, configures the devcontainer, and commits everything.
 
+> **Want to verify first?** See [TESTING.md](TESTING.md) for a step-by-step test procedure.
+
 ### Day-to-day in a project
 
 | Goal                             | How                                                              |

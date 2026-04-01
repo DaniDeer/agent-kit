@@ -28,5 +28,9 @@ mcp-servers/*/
 # Local secrets file (auto-sourced by start-http-mcp-servers.sh)
 .env
 
+# ── Local test directory ────────────────────────────────────────────────────────
+# Created during kick-start / devcontainer testing — never commit.
+test-project/
+
 
 
