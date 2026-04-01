@@ -20,7 +20,8 @@ Key files to read for context at the start of any session:
 - `.github/skills/<skill>/SKILL.md` — procedure for each skill
 
 Available skills: `setup-mcp-server`, `update-mcp-servers`, `fix-docker-perms`,
-`generate-mcp-configs`, `check-mcp-servers`, `update-skills`, `disk-cleanup`
+`generate-mcp-configs`, `check-mcp-servers`, `update-skills`, `disk-cleanup`,
+`start-http-mcp-servers`, `create-skill`, `git-commit`
 
 ---
 
@@ -35,6 +36,23 @@ and new conventions.
 - When a new edge case is handled (e.g. a new Dockerfile base image pattern, a new flag),
   add it to the relevant `SKILL.md` so the next session starts with that knowledge.
 - When a workflow changes substantially, update `README.md`.
+
+---
+
+## Proactive skill identification
+
+During any session, watch for patterns that are worth capturing as a reusable skill:
+
+- A multi-step workflow that was figured out from scratch
+- A process that was done, or will clearly need to be repeated
+- A non-obvious fix or workaround that took meaningful effort to discover
+- A new tool, API, or convention introduced to the project
+
+When you spot one, proactively say:
+
+> "This looks repeatable — want me to capture it as a skill?"
+
+If the user agrees, follow the `create-skill` skill (`.github/skills/create-skill/SKILL.md`).
 
 ---
 

@@ -1,3 +1,8 @@
+---
+name: update-skills
+description: "Sync all SKILL.md files, README.md, copilot-instructions.md, .clinerules, and mcp-catalog.yaml to reflect session changes. Use when: end of session, after changing scripts or conventions, after adding a new skill or MCP server, when asked to 'update the skills'."
+---
+
 # Skill: update-skills
 
 Sync all SKILL.md files, README.md, and mcp-catalog.yaml to accurately reflect

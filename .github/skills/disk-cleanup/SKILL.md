@@ -1,46 +1,74 @@
-# Disk Cleanup Skill
+---
+name: disk-cleanup
+description: "Free disk space on the host by removing unused Docker images, containers, volumes, and system packages. Use when: disk is running low, after updating MCP servers, clearing old Docker build cache."
+---
 
-## Purpose
+# Skill: disk-cleanup
 
-Automate disk cleanup on Linux systems (tested on Ubuntu 24.04), focusing on:
+Automate disk cleanup on Linux systems (tested on Ubuntu 24.04), focusing on
+removing unused packages, Docker/containerd data, and old log files. Also
+identifies large files for manual review.
 
-- Removing unused packages and cache
-- Pruning Docker and containerd data
-- Cleaning log files
-- Identifying and suggesting large files/directories for manual review
+---
 
-## Steps
+## When to run
 
-### 1. Remove Unused Packages and Cache
+- Disk space is running low (`df -h` shows high usage)
+- After running `update-mcp-servers` (old image layers accumulate)
+- After a large number of Docker builds
+- Routine maintenance before a new machine bootstrap
 
-- `sudo apt autoremove -y`
-- `sudo apt clean`
-- `sudo apt-get autoclean -y`
+---
 
-### 2. Prune Docker and Containerd Data
+## Procedure
 
-- `docker system prune -a -f` # Remove unused Docker data
-- `docker volume prune -f` # Remove unused Docker volumes
-- (Optional, DANGEROUS) `sudo rm -rf /var/lib/containerd/io.containerd.content.v1.content/*` # Remove all containerd images
+### Step 1 — Remove unused packages and cache
 
-### 3. Clean Log Files
+```bash
+sudo apt autoremove -y
+sudo apt clean
+sudo apt-get autoclean -y
+```
 
-- `sudo journalctl --vacuum-time=7d` # Keep only 7 days of logs
-- `sudo rm -rf /var/log/*.gz /var/log/*.[0-9]` # Remove old rotated logs
-- `sudo rm -rf /var/log/journal/*` # Remove persistent journal logs (if not needed)
+### Step 2 — Prune Docker and containerd data
 
-### 4. Identify Large Files/Directories
+```bash
+docker system prune -a -f      # Remove all unused Docker data (images, containers, networks)
+docker volume prune -f          # Remove unused Docker volumes
+```
 
-- `sudo du -ahx / | sort -rh | head -30` # List 30 largest files/dirs (may fail if disk is full)
-- `sudo du -hxd1 /var /home /usr | sort -hr` # List largest subdirs in key locations
+> **DANGEROUS — only if you need the space and know what you are removing:**
+>
+> ```bash
+> sudo rm -rf /var/lib/containerd/io.containerd.content.v1.content/*
+> ```
+>
+> This removes all containerd images. Ensure all containers are stopped and
+> images are not needed before running.
+
+### Step 3 — Clean log files
+
+```bash
+sudo journalctl --vacuum-time=7d          # Keep only 7 days of logs
+sudo rm -rf /var/log/*.gz /var/log/*.[0-9] # Remove old rotated logs
+sudo rm -rf /var/log/journal/*             # Remove persistent journal logs
+```
+
+### Step 4 — Identify large files/directories
+
+Use these to find what is consuming the most space:
+
+```bash
+sudo du -ahx / | sort -rh | head -30          # 30 largest files/dirs (may fail if disk is full)
+sudo du -hxd1 /var /home /usr | sort -hr       # Largest subdirs in key locations
+```
+
+---
 
 ## Usage
 
-- Run each command step-by-step, reviewing output before deleting critical data.
-- For containerd cleanup, ensure all containers are stopped and images are not needed.
-- For log cleanup, ensure compliance with any log retention policies.
-
-## Example Script
+Run each command step-by-step, reviewing output before deleting. Or run all at once
+(skip the dangerous containerd step unless certain):
 
 ```bash
 #!/bin/bash
@@ -51,10 +79,10 @@ sudo apt autoremove -y
 sudo apt clean
 sudo apt-get autoclean -y
 
-# 2. Prune Docker and containerd data
-sudo docker system prune -a -f
-sudo docker volume prune -f
-# Uncomment the next line ONLY if you want to remove ALL containerd images
+# 2. Prune Docker data
+docker system prune -a -f
+docker volume prune -f
+# Uncomment ONLY if you want to remove ALL containerd images:
 # sudo rm -rf /var/lib/containerd/io.containerd.content.v1.content/*
 
 # 3. Clean log files
@@ -67,9 +95,11 @@ sudo du -ahx / | sort -rh | head -30
 sudo du -hxd1 /var /home /usr | sort -hr
 ```
 
+---
+
 ## Notes
 
-- Always review what will be deleted, especially in /var/lib/containerd and /var/log.
-- For production systems, consider backing up important data before running destructive commands.
-- This skill is intended for Linux VM maintenance and troubleshooting low disk space situations.
-- Most commands are Ubuntu/Debian-specific (apt), but log and Docker cleanup steps are similar on other Linux distros.
+- Always review what will be deleted, especially containerd and journal paths.
+- For production systems, back up important data before running destructive commands.
+- Most commands are Ubuntu/Debian-specific (`apt`); Docker and log cleanup steps apply broadly.
+- After pruning Docker images, run `bootstrap.sh --force` to rebuild MCP server images.
