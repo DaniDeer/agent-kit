@@ -29,6 +29,23 @@ Available skills:
 
 ---
 
+## Multi-agent sync rule
+
+This repo supports multiple agents: **Cline** reads `.clinerules` and **GitHub Copilot** reads
+`.github/copilot-instructions.md`. Both files carry the same working agreements.
+
+**Rule: any change to one must be mirrored in the other in the same commit.**
+
+The two files are allowed to differ only in agent-specific formatting:
+
+- `.clinerules` uses a category/skills table
+- `.github/copilot-instructions.md` uses a trigger-based table for Copilot Chat
+
+Everything else — PII rules, skill lists, proactive identification triggers, MCP
+checklist — must be identical.
+
+---
+
 ## Skills are living documents
 
 Skills are not static. They improve as we discover new edge cases, new server types,
@@ -89,4 +106,10 @@ Every new MCP server must end with all of the following committed:
 - Patched Dockerfiles must use `ARG HOST_UID`, `ARG HOST_GID`, `ARG HOST_USER` — no hardcoded
   usernames, UIDs, or home directory paths.
 - SKILL.md and script files must use relative paths, not absolute `/home/<user>/...` paths.
-- Run `git ls-files | xargs grep -l "<username>"` before pushing to catch any leaks.
+- Before committing, run this dynamic PII check to catch the current user's real username and
+  home path (not a placeholder):
+
+  ```bash
+  git diff --cached --name-only | xargs grep -rn "$(id -un)" 2>/dev/null && echo "⚠ username found" || true
+  git diff --cached --name-only | xargs grep -rn "$HOME" 2>/dev/null && echo "⚠ home path found" || true
+  ```

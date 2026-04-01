@@ -1,0 +1,27 @@
+name: Release devcontainer feature
+
+on:
+  push:
+    tags:
+      - "feature-v*"
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Publish to GHCR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish devcontainer feature
+        uses: devcontainers/action@v1
+        with:
+          publish-features: true
+          base-path-to-features: ./src
+          generate-docs: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

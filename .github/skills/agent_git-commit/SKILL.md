@@ -98,16 +98,12 @@ git diff --cached --stat
 
 ### Step 2 — PII check (mandatory before push)
 
-Before committing anything that will be pushed, verify no PII has leaked:
+Before committing anything that will be pushed, run these two checks against
+**staged files only** — they catch the real username and home path dynamically:
 
 ```bash
-git ls-files | xargs grep -l "$(id -un)" 2>/dev/null
-```
-
-Also check for absolute home paths and UIDs:
-
-```bash
-git diff --cached | grep -E "(\/home\/[a-z]|ARG.*=.*[0-9]{4,})" || echo "clean"
+git diff --cached --name-only | xargs grep -rn "$(id -un)" 2>/dev/null && echo "⚠ username found" || true
+git diff --cached --name-only | xargs grep -rn "$HOME" 2>/dev/null && echo "⚠ home path found" || true
 ```
 
 If any matches appear in tracked/staged files:
@@ -158,8 +154,9 @@ Avoid mixing unrelated changes in a single commit.
 # Check staged content
 git diff --cached --stat
 
-# PII check
-git ls-files | xargs grep -l "$(id -un)" 2>/dev/null || echo "clean"
+# PII check (staged files)
+git diff --cached --name-only | xargs grep -rn "$(id -un)" 2>/dev/null && echo "⚠ username found" || true
+git diff --cached --name-only | xargs grep -rn "$HOME" 2>/dev/null && echo "⚠ home path found" || true
 
 # Commit
 git commit -m "feat(skills): add <name> skill"

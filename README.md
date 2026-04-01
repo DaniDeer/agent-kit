@@ -9,32 +9,53 @@ A VS Code-based AI agent framework with Docker-hosted MCP servers and reusable a
 
 ---
 
-## Using this framework in a project
+## Kick-start — add agent-kit to any project
 
-To add this framework to any project (especially devcontainer projects), run
-the one-shot bootstrap from your **project root**:
+### Option A — Devcontainer feature (recommended)
 
-```bash
-bash path/to/agent/starter-kit/init.sh
-# or, if the agent repo is at the default location:
-bash ~/prj/agent/starter-kit/init.sh
+Add to your project's `devcontainer.json` — everything runs automatically when the container starts:
 
-# Pass an explicit URL if needed:
-bash ~/prj/agent/starter-kit/init.sh --agent-url https://github.com/you/agent
+```json
+{
+	"features": {
+		"ghcr.io/danideer/agent-kit/agent-kit:1": {}
+	}
+}
 ```
 
-The script:
+The feature installs `agent-kit-init` during image build and runs it at `postCreateCommand` time. No extra steps.
 
-1. Adds this repo as a git submodule at `.agent/`
-2. Creates a thin `.clinerules` that points the agent to `.agent/.clinerules`
-3. Creates a thin `.github/copilot-instructions.md`
-4. Adds generated MCP config files to `.gitignore`
+> **Publishing:** push tag `feature-v1.0.0` to trigger the release workflow and publish to GHCR.
+
+### Option B — One-liner (no clone, no feature install)
+
+From your **project root**:
+
+```bash
+# Via curl (fresh, no clone):
+curl -fsSL https://raw.githubusercontent.com/DaniDeer/agent-kit/main/starter-kit/init.sh | bash
+
+# Or from a local clone:
+bash ~/prj/agent-kit/starter-kit/init.sh
+
+# Or in devcontainer.json postCreateCommand:
+# "postCreateCommand": "curl -fsSL https://raw.githubusercontent.com/DaniDeer/agent-kit/main/starter-kit/init.sh | bash"
+```
+
+### What gets created
+
+| File / Directory                  | Purpose                                                     |
+| --------------------------------- | ----------------------------------------------------------- |
+| `.agent/`                         | Agent framework as a git submodule (all skills + MCP tools) |
+| `.clinerules`                     | Cline reads `.agent/.clinerules` at every session start     |
+| `.github/copilot-instructions.md` | Copilot reads `.agent/` at every session start              |
+| `.gitignore`                      | Updated — excludes generated `mcp.json` files               |
 
 Then open the project in VS Code and tell the agent:
 
 > "Run the `agent_setup-in-project` skill"
 
-The agent completes the rest: devcontainer config, MCP config generation, commit.
+The agent generates MCP configs, configures the devcontainer, and commits everything.
 
 ### Day-to-day in a project
 
@@ -102,6 +123,10 @@ The agent completes the rest: devcontainer config, MCP config generation, commit
   mcp.json                   ← Cline MCP config (generated, git-ignored)
 mcp-catalog.yaml             ← list of all MCP servers      [checked in]
 mcp-servers/                 ← cloned repos & build context [git-ignored]
+src/
+  agent-kit/                 ← devcontainer feature: installs agent-kit-init during image build
+    devcontainer-feature.json
+    install.sh
 starter-kit/                 ← one-shot bootstrap for using this framework in a project
   init.sh                    ← run from a project root to add .agent/ submodule + template files
   .clinerules                ← template: thin project .clinerules referencing .agent

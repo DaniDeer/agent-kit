@@ -1,0 +1,16 @@
+{
+	"id": "agent-kit",
+	"version": "1.0.0",
+	"name": "Agent Kit",
+	"description": "Bootstraps the DaniDeer/agent-kit framework into your project as a git submodule. Adds .clinerules, copilot-instructions.md, and .gitignore entries — then the agent completes setup via the agent_setup-in-project skill.",
+	"documentationURL": "https://github.com/DaniDeer/agent-kit",
+	"options": {
+		"agentUrl": {
+			"type": "string",
+			"default": "https://github.com/DaniDeer/agent-kit",
+			"description": "GitHub URL of the agent framework repo. Override to use a fork."
+		}
+	},
+	"postCreateCommand": "agent-kit-init",
+	"installsAfter": ["ghcr.io/devcontainers/features/git"]
+}

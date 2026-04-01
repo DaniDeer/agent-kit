@@ -5,30 +5,50 @@
 # After this script finishes, open the project and tell the agent:
 #   "Run the agent_setup-in-project skill"
 #
-# Usage:
-#   bash path/to/agent/starter-kit/init.sh [--agent-url <url>]
+# ── Usage ─────────────────────────────────────────────────────────────────────
 #
-# Options:
+# Option A — Devcontainer feature (recommended, fully automatic):
+#   Add to devcontainer.json:
+#     "features": {
+#       "ghcr.io/danideer/agent-kit/agent-kit:1": {}
+#     }
+#   The feature installs agent-kit-init and runs it at postCreateCommand.
+#
+# Option B — curl (no clone required):
+#   curl -fsSL https://raw.githubusercontent.com/DaniDeer/agent-kit/main/starter-kit/init.sh | bash
+#
+#   With a forked agent-kit:
+#   curl -fsSL https://raw.githubusercontent.com/DaniDeer/agent-kit/main/starter-kit/init.sh \
+#     | bash -s -- --agent-url https://github.com/you/your-agent-fork
+#
+#   In devcontainer.json postCreateCommand:
+#   "postCreateCommand": "curl -fsSL https://raw.githubusercontent.com/DaniDeer/agent-kit/main/starter-kit/init.sh | bash"
+#
+# Option C — local clone:
+#   bash ~/prj/agent-kit/starter-kit/init.sh
+#
+# ── Options ───────────────────────────────────────────────────────────────────
 #   --agent-url <url>   GitHub URL of the agent framework repo.
-#                       Default: auto-detected from this script's own git remote.
-#
-# Examples:
-#   # If you cloned the agent framework already:
-#   bash ~/prj/agent/starter-kit/init.sh
-#
-#   # Explicit agent URL:
-#   bash ~/prj/agent/starter-kit/init.sh --agent-url https://github.com/you/agent
-#
-#   # From a fresh download (curl):
-#   curl -fsSL https://raw.githubusercontent.com/you/agent/main/starter-kit/init.sh \
-#     | bash -s -- --agent-url https://github.com/you/agent
+#                       Default: https://github.com/DaniDeer/agent-kit
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# ── Default agent framework URL ───────────────────────────────────────────────
+DEFAULT_AGENT_URL="https://github.com/DaniDeer/agent-kit"
+TEMPLATE_RAW_BASE="https://raw.githubusercontent.com/DaniDeer/agent-kit/main/starter-kit"
 
 log()  { echo "[agent-init] $*"; }
 err()  { echo "[agent-init] ERROR: $*" >&2; exit 1; }
+
+# ── Detect execution mode ─────────────────────────────────────────────────────
+# When piped via curl, BASH_SOURCE[0] is empty or /dev/stdin
+if [[ -n "${BASH_SOURCE[0]:-}" ]] && [[ "${BASH_SOURCE[0]}" != "/dev/stdin" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  PIPE_MODE=false
+else
+  SCRIPT_DIR=""
+  PIPE_MODE=true
+fi
 
 # ── Parse flags ───────────────────────────────────────────────────────────────
 AGENT_URL=""
@@ -39,13 +59,17 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# ── Auto-detect agent URL from this script's repo remote ─────────────────────
+# ── Resolve agent URL ─────────────────────────────────────────────────────────
 if [[ -z "$AGENT_URL" ]]; then
-  AGENT_URL="$(cd "$SCRIPT_DIR" && git remote get-url origin 2>/dev/null || true)"
-  if [[ -z "$AGENT_URL" ]]; then
-    err "Could not auto-detect agent URL. Pass --agent-url <url> explicitly."
+  if [[ "$PIPE_MODE" == false ]] && cd "$SCRIPT_DIR" && git remote get-url origin > /dev/null 2>&1; then
+    # Running as a local file: auto-detect from the script's own git remote
+    AGENT_URL="$(cd "$SCRIPT_DIR" && git remote get-url origin)"
+    log "Auto-detected agent URL: $AGENT_URL"
+  else
+    # Piped or no remote: use the hardcoded default
+    AGENT_URL="$DEFAULT_AGENT_URL"
+    log "Using default agent URL: $AGENT_URL"
   fi
-  log "Auto-detected agent URL: $AGENT_URL"
 fi
 
 # ── Verify we're in a git repo ────────────────────────────────────────────────
@@ -68,32 +92,43 @@ else
   log "Submodule added."
 fi
 
-# ── Copy starter-kit template files ──────────────────────────────────────────
-copy_template() {
-  local src="$1"
-  local dst="$PROJECT_ROOT/$2"
+# ── Copy or download template files ──────────────────────────────────────────
+write_template() {
+  local dst="$PROJECT_ROOT/$1"
+  local src_rel="$2"  # relative path within starter-kit/
+
   if [[ -f "$dst" ]]; then
-    log "  $2 already exists — skipping"
+    log "  $1 already exists — skipping"
     return
   fi
+
   mkdir -p "$(dirname "$dst")"
-  sed "s/<project-name>/$PROJECT_NAME/g" "$src" > "$dst"
-  log "  Created: $2"
+
+  if [[ "$PIPE_MODE" == false ]] && [[ -f "$SCRIPT_DIR/$src_rel" ]]; then
+    # Local mode: copy from filesystem and substitute project name
+    sed "s/<project-name>/$PROJECT_NAME/g" "$SCRIPT_DIR/$src_rel" > "$dst"
+  else
+    # Pipe mode: download from GitHub and substitute project name
+    curl -fsSL "$TEMPLATE_RAW_BASE/$src_rel" \
+      | sed "s/<project-name>/$PROJECT_NAME/g" > "$dst"
+  fi
+
+  log "  Created: $1"
 }
 
-log "Copying starter-kit template files..."
-copy_template "$SCRIPT_DIR/.clinerules"                      ".clinerules"
-copy_template "$SCRIPT_DIR/.github/copilot-instructions.md"  ".github/copilot-instructions.md"
+log "Writing project files..."
+write_template ".clinerules"                      ".clinerules"
+write_template ".github/copilot-instructions.md"  ".github/copilot-instructions.md"
 
 # ── Update .gitignore ─────────────────────────────────────────────────────────
 GITIGNORE="$PROJECT_ROOT/.gitignore"
-GITIGNORE_FRAGMENT="# Agent framework — generated MCP configs (host-specific, never commit)
-.vscode/mcp.json
-.cline/mcp.json"
-
 if ! grep -q ".vscode/mcp.json" "$GITIGNORE" 2>/dev/null; then
-  echo "" >> "$GITIGNORE"
-  echo "$GITIGNORE_FRAGMENT" >> "$GITIGNORE"
+  {
+    echo ""
+    echo "# Agent framework — generated MCP configs (host-specific, never commit)"
+    echo ".vscode/mcp.json"
+    echo ".cline/mcp.json"
+  } >> "$GITIGNORE"
   log "  Updated: .gitignore"
 else
   log "  .gitignore already has mcp.json entries — skipping"
@@ -105,14 +140,13 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "  Agent framework bootstrapped for: $PROJECT_NAME"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "  Next steps:"
-echo "  1. Open this project in VS Code"
-echo "  2. Tell the agent: 'Run the agent_setup-in-project skill'"
-echo "     The agent will complete the devcontainer setup, generate"
-echo "     MCP configs, and commit everything."
-echo ""
 echo "  Files created:"
 echo "    .agent/                  ← agent framework submodule"
-echo "    .clinerules              ← thin wrapper (agent reads .agent/.clinerules)"
+echo "    .clinerules              ← Cline reads .agent/.clinerules"
 echo "    .github/copilot-instructions.md"
+echo "    .gitignore               ← updated (excludes mcp.json)"
+echo ""
+echo "  Next step:"
+echo "    Open in VS Code and tell the agent:"
+echo "    \"Run the agent_setup-in-project skill\""
 echo ""

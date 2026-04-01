@@ -1,7 +1,7 @@
 ---
 name: setup-in-project
 description: "Wire the agent framework into a project as a git submodule. Use when: starting a new project that should use the agent framework, adding agent skills to an existing project, setting up devcontainer with MCP tools."
-argument-hint: "GitHub URL of the agent framework repo (e.g. https://github.com/you/agent)"
+argument-hint: "GitHub URL of the agent framework repo (e.g. https://github.com/DaniDeer/agent-kit)"
 ---
 
 # Skill: setup-in-project
