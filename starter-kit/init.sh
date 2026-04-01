@@ -90,7 +90,18 @@ log "Project name : $PROJECT_NAME"
 git config --global --add safe.directory "$PROJECT_ROOT" 2>/dev/null || true
 
 # ── Add agent framework as submodule ─────────────────────────────────────────
-if [[ -d "$PROJECT_ROOT/.agent" ]]; then
+# Check for stale submodule registration (e.g. from a previous interrupted run):
+# remove any leftover .git/config entry and .git/modules/ so git submodule add
+# starts from a clean state.
+_submodule_url="$(git -C "$PROJECT_ROOT" config --get submodule..agent.url 2>/dev/null || true)"
+if [[ -n "$_submodule_url" ]] && [[ ! -d "$PROJECT_ROOT/.agent/.git" ]]; then
+  log "Stale submodule registration detected — cleaning up before re-adding..."
+  git -C "$PROJECT_ROOT" config --remove-section submodule..agent 2>/dev/null || true
+  rm -rf "$PROJECT_ROOT/.git/modules/.agent" "$PROJECT_ROOT/.agent"
+  git -C "$PROJECT_ROOT" rm --cached .agent .gitmodules 2>/dev/null || true
+fi
+
+if [[ -d "$PROJECT_ROOT/.agent/.git" ]] || [[ -f "$PROJECT_ROOT/.agent/.git" ]]; then
   log ".agent/ already exists — skipping submodule add"
 else
   log "Adding agent framework as submodule at .agent/ ..."
