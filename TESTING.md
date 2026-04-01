@@ -134,14 +134,35 @@ Accept — the container will build and install the feature.
 
 #### 5 — Verify inside the container
 
-Open a terminal inside the container and check:
+`agent-kit-init` already ran at `postCreateCommand` time. Open a terminal inside
+the container and check the results:
 
 ```bash
-# agent-kit-init binary should be installed
-which agent-kit-init
+# agent-kit-init binary is installed
+which agent-kit-init         # → /usr/local/bin/agent-kit-init
 
-# Running it should print usage or bootstrap a project
-agent-kit-init --help
+# All files were created by the bootstrap
+ls -la                       # .agent/, .clinerules, .github/, .gitignore, .gitmodules
+
+# .clinerules substituted the project name correctly
+cat .clinerules              # "Project: test-project" at the top
+
+# .agent submodule contains the full agent framework
+ls .agent/                   # mcp-catalog.yaml, README.md, starter-kit/, src/, ...
+
+# Git status: .agent + .gitmodules staged, others untracked
+git status --short
+```
+
+**Expected `git status` output:**
+
+```
+A  .agent
+A  .gitmodules
+?? .clinerules
+?? .devcontainer/
+?? .github/
+?? .gitignore
 ```
 
 #### 6 — Clean up
@@ -151,6 +172,20 @@ Close the container window, then:
 ```bash
 cd .. && rm -rf test-project
 ```
+
+> **Re-running without a full teardown?** If you want to reset the container test
+> without deleting the entire `test-project/`, you must clean the stale git state
+> left by the previous run before rebuilding:
+>
+> ```bash
+> cd test-project
+> git rm --cached .agent .gitmodules 2>/dev/null || true
+> git config --remove-section submodule..agent 2>/dev/null || true
+> rm -rf .git/modules/ .agent .clinerules .github .gitignore .gitmodules
+> ```
+>
+> Then rebuild the container. `init.sh` ≥ v1.1 also does this cleanup automatically,
+> but cleaning on the host first ensures a truly fresh state.
 
 ---
 
