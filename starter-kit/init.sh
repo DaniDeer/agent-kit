@@ -82,6 +82,13 @@ PROJECT_NAME="$(basename "$PROJECT_ROOT")"
 log "Project root : $PROJECT_ROOT"
 log "Project name : $PROJECT_NAME"
 
+# ── Git safe directory ────────────────────────────────────────────────────────
+# In devcontainers and CI, the workspace is a bind mount owned by the host user.
+# Git ≥ 2.35.2 refuses to operate on repos owned by a different user unless
+# the directory is explicitly trusted. This prevents the misleading error:
+#   "fatal: please make sure that the .gitmodules file is in the working tree"
+git config --global --add safe.directory "$PROJECT_ROOT" 2>/dev/null || true
+
 # ── Add agent framework as submodule ─────────────────────────────────────────
 if [[ -d "$PROJECT_ROOT/.agent" ]]; then
   log ".agent/ already exists — skipping submodule add"
