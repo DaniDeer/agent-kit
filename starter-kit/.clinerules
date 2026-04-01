@@ -1,0 +1,19 @@
+# Project: <project-name>
+
+## Agent framework
+
+Uses the shared agent framework from `.agent/`.
+At session start, read `.agent/.clinerules` for all framework skills, MCP setup,
+and conventions.
+
+## Project-specific skills
+
+`.github/skills/` contains project-local skills (added by the agent as needed):
+
+| Category  | Skills                                                                    |
+| --------- | ------------------------------------------------------------------------- |
+| `project` | _(none yet — add project-specific skills here as `project_<name>` dirs)\_ |
+
+## Project-specific working agreements
+
+<!-- Add project-specific notes here -->

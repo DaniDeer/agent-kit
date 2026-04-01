@@ -30,6 +30,31 @@ MCP config files at the project root.
 
 ---
 
+## Before the agent can run this skill
+
+This skill assumes the agent is already loaded in the project workspace. On a
+**brand-new project** with no `.clinerules` yet, the agent doesn't know about any
+skills.
+
+**Use the starter-kit `init.sh` script to bootstrap first:**
+
+```bash
+# Run from the project root (before opening in VS Code):
+bash path/to/agent/starter-kit/init.sh
+# or if the agent repo is at the default location:
+bash ~/prj/agent/starter-kit/init.sh
+```
+
+The script adds the `.agent/` submodule and copies the template `.clinerules` and
+`.github/copilot-instructions.md` into the project. Then open the project in VS Code
+and say:
+
+> "Run the `agent_setup-in-project` skill"
+
+The agent will run **Steps 2–7** below to complete the full setup.
+
+---
+
 ## Procedure
 
 ### Step 1 — Add the agent framework as a git submodule

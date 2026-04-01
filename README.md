@@ -9,6 +9,44 @@ A VS Code-based AI agent framework with Docker-hosted MCP servers and reusable a
 
 ---
 
+## Using this framework in a project
+
+To add this framework to any project (especially devcontainer projects), run
+the one-shot bootstrap from your **project root**:
+
+```bash
+bash path/to/agent/starter-kit/init.sh
+# or, if the agent repo is at the default location:
+bash ~/prj/agent/starter-kit/init.sh
+
+# Pass an explicit URL if needed:
+bash ~/prj/agent/starter-kit/init.sh --agent-url https://github.com/you/agent
+```
+
+The script:
+
+1. Adds this repo as a git submodule at `.agent/`
+2. Creates a thin `.clinerules` that points the agent to `.agent/.clinerules`
+3. Creates a thin `.github/copilot-instructions.md`
+4. Adds generated MCP config files to `.gitignore`
+
+Then open the project in VS Code and tell the agent:
+
+> "Run the `agent_setup-in-project` skill"
+
+The agent completes the rest: devcontainer config, MCP config generation, commit.
+
+### Day-to-day in a project
+
+| Goal                             | How                                                              |
+| -------------------------------- | ---------------------------------------------------------------- |
+| Use a framework skill            | Just ask — agent reads `.agent/.clinerules`                      |
+| Add a project-specific skill     | "Create a skill called `<name>`" — agent uses `project` category |
+| Pull latest framework updates    | "Run `agent_update-agent-framework`"                             |
+| Push framework improvements back | "Run `agent_update-agent-framework`" (direction B)               |
+
+---
+
 ## Structure
 
 ```
@@ -64,6 +102,11 @@ A VS Code-based AI agent framework with Docker-hosted MCP servers and reusable a
   mcp.json                   ← Cline MCP config (generated, git-ignored)
 mcp-catalog.yaml             ← list of all MCP servers      [checked in]
 mcp-servers/                 ← cloned repos & build context [git-ignored]
+starter-kit/                 ← one-shot bootstrap for using this framework in a project
+  init.sh                    ← run from a project root to add .agent/ submodule + template files
+  .clinerules                ← template: thin project .clinerules referencing .agent
+  .github/
+    copilot-instructions.md  ← template: thin project copilot-instructions referencing .agent
 .clinerules                  ← Cline always-on working agreements  [checked in]
 .gitignore
 README.md
