@@ -17,7 +17,7 @@ Key files to read for context at the start of any session:
 
 - `README.md` — architecture, bootstrap instructions, conventions
 - `mcp-catalog.yaml` — registered MCP servers (source of truth)
-- `.github/skills/<skill>/SKILL.md` — procedure for each skill
+- `.github/skills/<category>_<skill>/SKILL.md` — procedure for each skill (directories follow `<category>_<skill>` naming)
 
 Available skills (invoke via `/skill-name` in Copilot Chat):
 
@@ -62,7 +62,7 @@ When you spot one, proactively say:
 
 > "This looks repeatable — want me to capture it as a skill?"
 
-If the user agrees, follow the `create-skill` skill (`.github/skills/create-skill/SKILL.md`).
+If the user agrees, follow the `agent_create-skill` skill (`.github/skills/agent_create-skill/SKILL.md`).
 
 ---
 
@@ -72,7 +72,7 @@ After any session where skills, scripts, or conventions changed, offer to run:
 
 > "Update the skills to reflect what we did today."
 
-This triggers the `update-skills` skill — see `.github/skills/update-skills/SKILL.md`.
+This triggers the `agent_update-skills` skill — see `.github/skills/agent_update-skills/SKILL.md`.
 
 ---
 

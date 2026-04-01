@@ -15,38 +15,38 @@ A VS Code-based AI agent framework with Docker-hosted MCP servers and reusable a
 .github/
   copilot-instructions.md    ← Copilot always-on working agreements [checked in]
   skills/
-    setup-mcp-server/        ← skill: add a new MCP server from a GitHub URL
+    mcp_setup-mcp-server/        ← skill: add a new MCP server from a GitHub URL
       SKILL.md
       scripts/
         setup-mcp-server.sh  ← clone repo, build Docker image (sha + latest tags)
         bootstrap.sh         ← install every server from the catalog at once
-    update-mcp-servers/      ← skill: pull upstream changes, rebuild images
+    mcp_update-mcp-servers/      ← skill: pull upstream changes, rebuild images
       SKILL.md
       scripts/
         update-mcp-servers.sh
-    fix-docker-perms/        ← skill: patch Dockerfiles for non-root container use
+    mcp_fix-docker-perms/        ← skill: patch Dockerfiles for non-root container use
       SKILL.md
       scripts/
         fix-docker-perms.sh
-    update-skills/           ← skill: sync SKILL.md files at end of session
-      SKILL.md
-    generate-mcp-configs/    ← skill: regenerate .vscode/mcp.json + .cline/mcp.json
+    mcp_generate-mcp-configs/    ← skill: regenerate .vscode/mcp.json + .cline/mcp.json
       SKILL.md
       scripts/
         generate-mcp-configs.sh
-    check-mcp-servers/       ← skill: read-only health check for all catalog servers
+    mcp_check-mcp-servers/       ← skill: read-only health check for all catalog servers
       SKILL.md
       scripts/
         check-mcp-servers.sh
-    disk-cleanup/            ← skill: remove unused Docker images and cloned repos
-      SKILL.md
-    start-http-mcp-servers/  ← skill: start persistent HTTP-transport MCP server containers
+    mcp_start-http-mcp-servers/  ← skill: start persistent HTTP-transport MCP server containers
       SKILL.md
       scripts/
         start-http-mcp-servers.sh
-    create-skill/            ← skill: create a new skill following the canonical format
+    agent_create-skill/          ← skill: create a new skill following the canonical format
       SKILL.md
-    git-commit/              ← skill: commit with Conventional Commits format + PII check
+    agent_update-skills/         ← skill: sync SKILL.md files at end of session
+      SKILL.md
+    agent_git-commit/            ← skill: commit with Conventional Commits format + PII check
+      SKILL.md
+    system_disk-cleanup/         ← skill: remove unused Docker images and cloned repos
       SKILL.md
 .mcp-dockerfiles/            ← patched Dockerfiles (one per server) [checked in]
   servers-git/
@@ -86,7 +86,7 @@ README.md
 ## Bootstrap (new machine / fresh clone)
 
 ```bash
-bash .github/skills/setup-mcp-server/scripts/bootstrap.sh
+bash .github/skills/mcp_setup-mcp-server/scripts/bootstrap.sh
 ```
 
 Reads every `url:` entry from `mcp-catalog.yaml` and calls `setup-mcp-server.sh`
@@ -129,7 +129,7 @@ Flags:
 /update-mcp-servers
 
 # Or directly:
-bash .github/skills/update-mcp-servers/scripts/update-mcp-servers.sh
+bash .github/skills/mcp_update-mcp-servers/scripts/update-mcp-servers.sh
 ```
 
 - Pulls upstream commits with `git fetch --depth=1 + reset --hard`

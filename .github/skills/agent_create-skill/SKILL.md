@@ -58,18 +58,29 @@ If none of the above apply, inline documentation or a code comment is sufficient
 
 ## Procedure
 
-### Step 1 — Choose a name
+### Step 1 — Choose a name and category
 
-Use `kebab-case`, all lowercase. The name should:
+Skills are organised with a `<category>_<name>` directory naming convention.
 
-- Be a verb phrase describing the action (`setup-mcp-server`, `fix-docker-perms`)
-- Or a noun that is unambiguous (`disk-cleanup`, `git-commit`)
-- Match the directory name exactly
+Pick a **category** from the existing set (or introduce a new one if none fits):
+
+| Category | Used for                                                                 |
+| -------- | ------------------------------------------------------------------------ |
+| `mcp`    | MCP server lifecycle (setup, update, check, perms, configs)              |
+| `agent`  | Agent workflow meta-skills (skill creation, commits, session management) |
+| `system` | Host-level maintenance (disk, logs, packages)                            |
+
+Pick a **name** in `kebab-case`, all lowercase:
+
+- Verb phrase for actions: `setup-mcp-server`, `fix-docker-perms`
+- Noun for things managed: `disk-cleanup`, `git-commit`
+
+The full directory name is `<category>_<name>` (e.g. `agent_create-skill`, `mcp_setup-mcp-server`).
 
 ### Step 2 — Create the directory structure
 
 ```bash
-mkdir -p .github/skills/<name>/scripts   # only if scripts are needed
+mkdir -p .github/skills/<category>_<name>/scripts   # only if scripts are needed
 ```
 
 Skills without shell scripts (documentation-only or agent-executed procedures)
@@ -100,7 +111,7 @@ If the skill involves repeatable shell operations, create scripts in `scripts/`:
 ```bash
 # Script conventions
 set -euo pipefail                        # always — fail fast
-ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"  # repo root from scripts/
+ROOT="$(cd "$(dirname "$0")/../../../.." && pwd)"  # repo root (.github/skills/<dir>/scripts/ → 4 levels up)
 # Use relative paths — no /home/<user>/... anywhere
 # Use Docker ARG — no hardcoded UIDs, usernames, or home dirs
 ```
@@ -113,10 +124,10 @@ Scripts should:
 
 ### Step 5 — Update `.clinerules`
 
-Add the skill name to the "Available skills" line in `.clinerules`:
+Add the new skill to the category table in `.clinerules`:
 
 ```
-Available skills: `setup-mcp-server`, ..., `<new-skill>`
+| `<category>` | ..., `<category>_<name>` |
 ```
 
 ### Step 6 — Update `.github/copilot-instructions.md`
@@ -132,7 +143,7 @@ Add a row to the skills table:
 Add the new skill to the **Structure** directory tree under `.github/skills/`:
 
 ```
-    <name>/                  ← skill: <one-line description>
+    <category>_<name>/       ← skill: <one-line description>
       SKILL.md
       scripts/
         <name>.sh
@@ -143,12 +154,12 @@ Add the new skill to the **Structure** directory tree under `.github/skills/`:
 Group all new skill files + reference updates into a single commit:
 
 ```
-feat(skills): add <name> skill
+feat(skills): add <category>_<name> skill
 
-- .github/skills/<name>/SKILL.md: <what it documents>
-- .clinerules: add <name> to available skills
+- .github/skills/<category>_<name>/SKILL.md: <what it documents>
+- .clinerules: add <category>_<name> to skills table
 - .github/copilot-instructions.md: add <name> to skills table
-- README.md: add <name> to structure tree
+- README.md: add <category>_<name> to structure tree
 ```
 
 ---
@@ -185,7 +196,7 @@ argument-hint: "<optional: what argument the user provides>"
 <Explanation of what to do and why.>
 
 ```bash
-bash .github/skills/<name>/scripts/<name>.sh [--flag]
+bash .github/skills/<category>_<name>/scripts/<name>.sh [--flag]
 ```
 
 ### Step 2 — <Title>
@@ -196,11 +207,11 @@ bash .github/skills/<name>/scripts/<name>.sh [--flag]
 
 ```bash
 # Default run
-bash .github/skills/<name>/scripts/<name>.sh
+bash .github/skills/<category>_<name>/scripts/<name>.sh
 
 # With options
-bash .github/skills/<name>/scripts/<name>.sh --dry-run
-bash .github/skills/<name>/scripts/<name>.sh --force
+bash .github/skills/<category>_<name>/scripts/<name>.sh --dry-run
+bash .github/skills/<category>_<name>/scripts/<name>.sh --force
 ```
 
 ## Error Handling

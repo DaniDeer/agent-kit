@@ -17,11 +17,15 @@ Key files to read for context at the start of any session:
 
 - `README.md` — architecture, bootstrap instructions, conventions
 - `mcp-catalog.yaml` — registered MCP servers (source of truth)
-- `.github/skills/<skill>/SKILL.md` — procedure for each skill
+- `.github/skills/<category>_<skill>/SKILL.md` — procedure for each skill (directories follow `<category>_<skill>` naming)
 
-Available skills: `setup-mcp-server`, `update-mcp-servers`, `fix-docker-perms`,
-`generate-mcp-configs`, `check-mcp-servers`, `update-skills`, `disk-cleanup`,
-`start-http-mcp-servers`, `create-skill`, `git-commit`
+Available skills:
+
+| Category | Skills                                                                                                                                                      |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mcp`    | `mcp_setup-mcp-server`, `mcp_update-mcp-servers`, `mcp_fix-docker-perms`, `mcp_generate-mcp-configs`, `mcp_check-mcp-servers`, `mcp_start-http-mcp-servers` |
+| `agent`  | `agent_create-skill`, `agent_update-skills`, `agent_git-commit`                                                                                             |
+| `system` | `system_disk-cleanup`                                                                                                                                       |
 
 ---
 
@@ -52,7 +56,7 @@ When you spot one, proactively say:
 
 > "This looks repeatable — want me to capture it as a skill?"
 
-If the user agrees, follow the `create-skill` skill (`.github/skills/create-skill/SKILL.md`).
+If the user agrees, follow the `agent_create-skill` skill (`.github/skills/agent_create-skill/SKILL.md`).
 
 ---
 
@@ -63,7 +67,7 @@ the update-skills skill, or the user can trigger it explicitly:
 
 > "Update the skills to reflect what we did today."
 
-See `.github/skills/update-skills/SKILL.md` for the full procedure.
+See `.github/skills/agent_update-skills/SKILL.md` for the full procedure.
 
 ---
 

@@ -29,24 +29,24 @@ or conventions changed.
 Go through each item below and check whether it accurately reflects the current state.
 Update any file that is out of date, then commit everything together.
 
-### 1. `.github/skills/setup-mcp-server/SKILL.md`
+### 1. `.github/skills/mcp_setup-mcp-server/SKILL.md`
 
 - Does it describe the current clone + patch + build flow?
 - Are all script flags documented (`--force`, `--dry-run`)?
 - Does it cover any new server types encountered (Node.js, Go, Alpine, npx, uvx)?
 - Is the bootstrap.sh workflow accurate?
 
-### 2. `.github/skills/fix-docker-perms/SKILL.md`
+### 2. `.github/skills/mcp_fix-docker-perms/SKILL.md`
 
 - Does it document all Dockerfile base image patterns currently handled?
 - If a new base image type was patched this session, is the new pattern described?
 
-### 3. `.github/skills/update-mcp-servers/SKILL.md`
+### 3. `.github/skills/mcp_update-mcp-servers/SKILL.md`
 
 - Does it describe the current pull + rebuild flow?
 - Are flags documented?
 
-### 4. `.github/skills/disk-cleanup/SKILL.md`
+### 4. `.github/skills/system_disk-cleanup/SKILL.md`
 
 - Does it reflect what gets cleaned and what is preserved?
 
@@ -78,8 +78,8 @@ Group all SKILL.md / README / catalog updates into a single commit:
 docs: sync skills to reflect session changes
 
 <bullet list of what changed, e.g.:>
-- fix-docker-perms/SKILL.md: document Node.js slim Dockerfile patch pattern
-- README.md: add disk-cleanup to skills table
+- mcp_fix-docker-perms/SKILL.md: document Node.js slim Dockerfile patch pattern
+- README.md: add system_disk-cleanup to structure tree
 - mcp-catalog.yaml: add notes for github server (requires GITHUB_TOKEN env var)
 ```
 
