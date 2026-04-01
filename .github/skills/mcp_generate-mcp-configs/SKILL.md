@@ -25,14 +25,24 @@ Run it manually when:
 ## Usage
 
 ```bash
-bash .github/skills/generate-mcp-configs/scripts/generate-mcp-configs.sh
+# Standalone (agent framework is the workspace root)
+bash .github/skills/mcp_generate-mcp-configs/scripts/generate-mcp-configs.sh
+
+# With explicit root
+bash generate-mcp-configs.sh --root /path/to/repo
+
+# Submodule mode (agent framework is at .agent/ inside a project)
+bash .agent/.github/skills/mcp_generate-mcp-configs/scripts/generate-mcp-configs.sh \
+  --root .agent \
+  --output-root .
 ```
 
-Optional flag:
+### Flags
 
-```bash
-bash generate-mcp-configs.sh --root /path/to/repo   # if not called from repo root
-```
+| Flag                  | Default          | Description                                                                                                                       |
+| --------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `--root <dir>`        | auto-detected    | Agent framework root (where `.example` files and `mcp-catalog.yaml` live)                                                         |
+| `--output-root <dir>` | same as `--root` | Where to write the generated `mcp.json` files — use when the framework is a submodule and configs should live at the project root |
 
 ---
 

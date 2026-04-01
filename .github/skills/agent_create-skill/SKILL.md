@@ -229,6 +229,20 @@ bash .github/skills/<category>_<name>/scripts/<name>.sh --force
 
 ---
 
+## Project vs. framework context
+
+When working inside a **project** that has the agent framework as a submodule at `.agent/`:
+
+| Skill type                                                 | Where it lives                             | How to create                                                                       |
+| ---------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------- |
+| **Framework skill** — useful across all projects           | `.agent/.github/skills/<category>_<name>/` | Work inside `.agent/`, use this skill, then push via `agent_update-agent-framework` |
+| **Project-specific skill** — only relevant to this project | `.github/skills/project_<name>/`           | Use this skill from the project root; use `project` as the category                 |
+
+Project-specific skills use the same canonical format. The only difference is location
+and category — `project_` prefix marks them as project-local.
+
+---
+
 ## Checklist — before committing a new skill
 
 - [ ] Frontmatter has `name`, `description` (with trigger phrases), and `argument-hint` (if applicable)

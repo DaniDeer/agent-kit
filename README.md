@@ -46,6 +46,10 @@ A VS Code-based AI agent framework with Docker-hosted MCP servers and reusable a
       SKILL.md
     agent_git-commit/            ← skill: commit with Conventional Commits format + PII check
       SKILL.md
+    agent_setup-in-project/      ← skill: wire agent framework into a project as a git submodule
+      SKILL.md
+    agent_update-agent-framework/ ← skill: pull/push agent framework submodule in a project
+      SKILL.md
     system_disk-cleanup/         ← skill: remove unused Docker images and cloned repos
       SKILL.md
 .mcp-dockerfiles/            ← patched Dockerfiles (one per server) [checked in]

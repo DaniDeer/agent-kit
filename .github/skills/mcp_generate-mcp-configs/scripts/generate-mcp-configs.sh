@@ -18,11 +18,16 @@
 #   bash generate-mcp-configs.sh [--root <dir>]
 #
 # Flags:
-#   --root <dir>   Repo root directory (default: auto-detected from script location)
+#   --root <dir>         Agent framework root (where mcp-catalog.yaml and .example files live)
+#                        Default: auto-detected from script location
+#   --output-root <dir>  Where to write mcp.json files (default: same as --root)
+#                        Use when the agent framework is a submodule and configs
+#                        should be written to the project root instead.
 #
 # Examples:
-#   bash .github/skills/generate-mcp-configs/scripts/generate-mcp-configs.sh
+#   bash .github/skills/mcp_generate-mcp-configs/scripts/generate-mcp-configs.sh
 #   bash generate-mcp-configs.sh --root /path/to/repo
+#   bash generate-mcp-configs.sh --root .agent --output-root .
 
 set -euo pipefail
 
@@ -34,9 +39,11 @@ warn() { echo "[generate-mcp-configs] WARN: $*" >&2; }
 
 # ── Parse flags ───────────────────────────────────────────────────────────────
 ROOT_DIR=""
+OUTPUT_ROOT_DIR=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --root) ROOT_DIR="$2"; shift 2 ;;
+    --root)        ROOT_DIR="$2";        shift 2 ;;
+    --output-root) OUTPUT_ROOT_DIR="$2"; shift 2 ;;
     *) warn "Unknown flag: $1" >&2; exit 1 ;;
   esac
 done
@@ -44,6 +51,12 @@ done
 # Auto-detect repo root from script location if not given
 if [[ -z "$ROOT_DIR" ]]; then
   ROOT_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+fi
+
+# Output root defaults to the framework root (standalone mode)
+# Override with --output-root when the framework is a submodule
+if [[ -z "$OUTPUT_ROOT_DIR" ]]; then
+  OUTPUT_ROOT_DIR="$ROOT_DIR"
 fi
 
 # ── Template substitution ─────────────────────────────────────────────────────
@@ -67,6 +80,8 @@ generate_config() {
 }
 
 log "Generating MCP config files from templates..."
-generate_config "$ROOT_DIR/.vscode/mcp.example.json" "$ROOT_DIR/.vscode/mcp.json"
-generate_config "$ROOT_DIR/.cline/mcp.example.json"  "$ROOT_DIR/.cline/mcp.json"
+log "  Framework root : $ROOT_DIR"
+log "  Output root    : $OUTPUT_ROOT_DIR"
+generate_config "$ROOT_DIR/.vscode/mcp.example.json" "$OUTPUT_ROOT_DIR/.vscode/mcp.json"
+generate_config "$ROOT_DIR/.cline/mcp.example.json"  "$OUTPUT_ROOT_DIR/.cline/mcp.json"
 log "Done."

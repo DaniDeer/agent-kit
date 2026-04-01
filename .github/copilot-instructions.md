@@ -33,6 +33,8 @@ Available skills (invoke via `/skill-name` in Copilot Chat):
 | `start-http-mcp-servers` | `/start-http-mcp-servers` | Start persistent HTTP-transport MCP server containers before a session  |
 | `create-skill`           | `/create-skill <name>`    | Create a new skill following the canonical format                       |
 | `git-commit`             | `/git-commit`             | Commit with Conventional Commits format and run PII check               |
+| `setup-in-project`       | `/setup-in-project <url>` | Wire the agent framework into a project as a git submodule              |
+| `update-agent-framework` | `/update-agent-framework` | Pull latest framework into a project, or push improvements back         |
 
 ---
 
