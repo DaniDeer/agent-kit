@@ -1,3 +1,8 @@
+---
+name: generate-mcp-configs
+description: "Regenerate .vscode/mcp.json and .cline/mcp.json from .example templates. Use when: editing example files directly, cloning on a new machine, or invoke with /generate-mcp-configs."
+---
+
 # Skill: generate-mcp-configs
 
 Regenerate `.vscode/mcp.json` and `.cline/mcp.json` from their `.example` templates

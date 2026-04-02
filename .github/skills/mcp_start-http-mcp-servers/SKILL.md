@@ -1,3 +1,8 @@
+---
+name: start-http-mcp-servers
+description: "Start persistent HTTP-transport MCP server containers before an agent session. Use when: starting a session that needs an HTTP-transport server, stopping or checking running containers, or invoke with /start-http-mcp-servers."
+---
+
 # Skill: start-http-mcp-servers
 
 Manage the lifecycle of HTTP-transport MCP servers registered in `mcp-catalog.yaml`.

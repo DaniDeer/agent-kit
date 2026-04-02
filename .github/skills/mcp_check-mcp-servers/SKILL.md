@@ -1,3 +1,8 @@
+---
+name: check-mcp-servers
+description: "Read-only health check of all MCP servers. Use when: auditing server status, troubleshooting a misbehaving server, checking after a git pull, or invoke with /check-mcp-servers."
+---
+
 # Skill: check-mcp-servers
 
 Read-only status audit of all MCP servers registered in `mcp-catalog.yaml`.
