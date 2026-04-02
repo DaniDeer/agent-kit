@@ -50,20 +50,36 @@ bash .agent/.github/skills/mcp_generate-mcp-configs/scripts/generate-mcp-configs
 
 1. Reads `.vscode/mcp.example.json` and `.cline/mcp.example.json`
 2. Strips `//` comments (JSONC → JSON)
-3. Substitutes placeholders:
+3. Resolves host identity — prefers env var overrides, falls back to shell identity:
 
-   | Placeholder   | Replaced with | Example                 |
-   | ------------- | ------------- | ----------------------- |
-   | `<HOST_UID>`  | `$(id -u)`    | `1000`                  |
-   | `<HOST_GID>`  | `$(id -g)`    | `1000`                  |
-   | `<HOST_USER>` | `$(id -un)`   | `alice`                 |
-   | `<HOST_HOME>` | `$HOME`       | `/home/alice`           |
-   | `<WORKSPACE>` | repo root dir | `/home/alice/prj/agent` |
-
-   `<WORKSPACE>` is useful for referencing scripts that live in the repo and need
-   to be called with an absolute path from mcp.json (e.g. `.mcp-scripts/start-browser-use.sh`).
+   | Placeholder   | Default       | Override env var | Example                 |
+   | ------------- | ------------- | ---------------- | ----------------------- |
+   | `<HOST_UID>`  | `$(id -u)`    | `$HOST_UID`      | `1000`                  |
+   | `<HOST_GID>`  | `$(id -g)`    | `$HOST_GID`      | `1000`                  |
+   | `<HOST_USER>` | `$(id -un)`   | `$HOST_USER`     | `alice`                 |
+   | `<HOST_HOME>` | `$HOME`       | `$HOST_HOME`     | `/home/alice`           |
+   | `<WORKSPACE>` | repo root dir | —                | `/home/alice/prj/agent` |
 
 4. Writes `.vscode/mcp.json` and `.cline/mcp.json` (both git-ignored)
+
+### Running inside a devcontainer (DooD)
+
+When the script runs inside a devcontainer with Docker-outside-of-Docker, `$HOME`
+and `$(id -un)` return the container's values (`/home/vscode`, `vscode`) — not the
+host user's. The generated `mcp.json` bind mounts would then point to paths that
+don't exist on the host Docker daemon.
+
+**Fix:** pass host identity via `containerEnv` in `devcontainer.json`:
+
+```json
+"containerEnv": {
+  "HOST_HOME": "${localEnv:HOME}",
+  "HOST_USER": "${localEnv:USER}"
+}
+```
+
+VS Code substitutes `${localEnv:HOME}` with the real host `$HOME` at container
+creation time. The script then uses these values and generates correct host paths.
 
 ---
 

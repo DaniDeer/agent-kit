@@ -112,22 +112,32 @@ Add generated MCP config files to `.gitignore`:
 
 ### Step 5 — Configure `.devcontainer/devcontainer.json`
 
-Add or update `postCreateCommand` to bootstrap the agent framework on container creation:
+Add or update to include DooD (Docker-outside-of-Docker), host identity pass-through,
+and the `postCreateCommand` that bootstraps the framework on every container creation:
 
 ```json
 {
+	"features": {
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+	},
+	"containerEnv": {
+		"HOST_HOME": "${localEnv:HOME}",
+		"HOST_USER": "${localEnv:USER}"
+	},
 	"postCreateCommand": "git submodule update --init --recursive && bash .agent/.github/skills/mcp_setup-mcp-server/scripts/bootstrap.sh && bash .agent/.github/skills/mcp_generate-mcp-configs/scripts/generate-mcp-configs.sh --root .agent --output-root ."
 }
 ```
 
-> **Already running in a container?** The `postCreateCommand` has no effect on the
-> currently running container — that one was already bootstrapped by the devcontainer
-> feature or `init.sh`. This command is essential for future container rebuilds and for
-> teammates cloning the project fresh. Always commit it.
+> **Why DooD?** The agent inside the devcontainer uses `docker run` to call MCP tools
+> (stdio transport). Without DooD, Docker is not available inside the container.
 
-> **Note on Docker in devcontainers:** `bootstrap.sh` builds Docker images and requires
-> Docker to be available. Use `"features": {"ghcr.io/devcontainers/features/docker-in-docker:2": {}}`
-> or `docker-outside-of-docker` in your devcontainer to enable this.
+> **Why `containerEnv`?** `generate-mcp-configs.sh` substitutes `<HOST_HOME>` and
+> `<HOST_USER>` into `mcp.json`. Inside a container, `$HOME` is `/home/vscode` and
+> the user is `vscode` — not the host user. `${localEnv:HOME}` passes the real host
+> `$HOME` so bind mounts in `mcp.json` resolve correctly on the host Docker daemon.
+
+> **Already running in a container?** The `postCreateCommand` has no effect on the
+> currently running container. It runs on every future rebuild — always commit it.
 
 ### Step 6 — Generate initial MCP configs
 

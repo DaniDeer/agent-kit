@@ -59,6 +59,16 @@ if [[ -z "$OUTPUT_ROOT_DIR" ]]; then
   OUTPUT_ROOT_DIR="$ROOT_DIR"
 fi
 
+# ── Host identity resolution ──────────────────────────────────────────────────
+# Prefer env var overrides so the script produces correct host paths when run
+# inside a devcontainer (where $HOME and id -un reflect the container user).
+# Set these in devcontainer.json containerEnv:
+#   "HOST_HOME": "${localEnv:HOME}", "HOST_USER": "${localEnv:USER}"
+_HOST_UID="${HOST_UID:-$(id -u)}"
+_HOST_GID="${HOST_GID:-$(id -g)}"
+_HOST_USER="${HOST_USER:-$(id -un)}"
+_HOST_HOME="${HOST_HOME:-$HOME}"
+
 # ── Template substitution ─────────────────────────────────────────────────────
 generate_config() {
   local example="$1"
@@ -69,10 +79,10 @@ generate_config() {
   fi
   mkdir -p "$(dirname "$output")"
   sed \
-    -e "s|<HOST_UID>|$(id -u)|g" \
-    -e "s|<HOST_GID>|$(id -g)|g" \
-    -e "s|<HOST_USER>|$(id -un)|g" \
-    -e "s|<HOST_HOME>|$HOME|g" \
+    -e "s|<HOST_UID>|$_HOST_UID|g" \
+    -e "s|<HOST_GID>|$_HOST_GID|g" \
+    -e "s|<HOST_USER>|$_HOST_USER|g" \
+    -e "s|<HOST_HOME>|$_HOST_HOME|g" \
     -e "s|<WORKSPACE>|$ROOT_DIR|g" \
     -e '/^\s*\/\//d' \
     "$example" > "$output"
